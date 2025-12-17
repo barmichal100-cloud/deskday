@@ -147,7 +147,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           address: data.address,
           city: data.city,
           country: data.country,
-          pricePerDay: data.pricePerDay,
+          pricePerDay: data.pricePerDay ?? 0,
           currency: data.currency,
           amenities: amenities,
           photos:
