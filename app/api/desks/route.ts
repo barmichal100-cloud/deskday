@@ -144,7 +144,7 @@ export async function POST(req: Request) {
         country: data.country,
         address: data.address,
         description_en: data.description_en,
-        pricePerDay: data.pricePerDay,
+        pricePerDay: data.pricePerDay ?? 0,
         currency: data.currency,
         amenities: {}, // TODO: expand later
         isActive: true,
