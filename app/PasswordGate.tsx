@@ -21,10 +21,17 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     e.preventDefault();
     const correctPassword = process.env.NEXT_PUBLIC_SITE_PASSWORD;
 
+    // Debug logging (remove after testing)
+    console.log("Password check:", {
+      hasPassword: !!correctPassword,
+      passwordLength: correctPassword?.length,
+      enteredLength: password.length,
+    });
+
     if (!correctPassword) {
-      // No password set, allow access
-      setIsAuthenticated(true);
-      sessionStorage.setItem("site_authenticated", "true");
+      // No password set - show error instead of allowing access
+      setError("Password protection is not configured. Please contact the administrator.");
+      setPassword("");
       return;
     }
 
