@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import BookingCard from './BookingCard';
 import Header from '../../Header';
+import SuccessBanner from './SuccessBanner';
 
 type DeskPageProps = {
   params: Promise<{ id: string }>;
@@ -75,6 +77,9 @@ export default async function DeskPage({ params, searchParams }: DeskPageProps &
       <Header backHref={backUrl} backText={backText} />
 
       <section className="px-6 lg:px-20 py-10 md:py-12">
+        <Suspense fallback={null}>
+          <SuccessBanner />
+        </Suspense>
 
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 mb-2">

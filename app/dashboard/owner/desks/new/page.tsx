@@ -316,9 +316,14 @@ export default function NewDeskPage() {
         return;
       }
 
-      // On success, redirect back to dashboard
+      // On success, redirect to the newly created desk page
       setIsSubmitting(false);
-      router.push("/dashboard");
+      const deskId = data.desk?.id;
+      if (deskId) {
+        router.push(`/desk/${deskId}?success=true`);
+      } else {
+        router.push("/dashboard/owner");
+      }
       router.refresh();
     } catch (err) {
       console.error("Error submitting form:", err);
