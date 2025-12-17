@@ -1,0 +1,206 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  RENTER
+  OWNER
+  ADMIN
+}
+
+enum Locale {
+  EN
+  HE
+}
+
+enum BookingStatus {
+  PENDING    // Temporary state while Stripe checkout is in progress
+  CONFIRMED  // Payment successful, booking is active
+  CANCELLED
+  REFUNDED
+}
+
+enum BlockReason {
+  OWNER_BLOCKED
+  BOOKED
+}
+
+enum PayoutStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  passwordHash     String
+  name             String?
+  companyName      String?
+  phone            String?
+  role             UserRole @default(RENTER)
+  preferredLocale  Locale   @default(EN)
+  stripeCustomerId String?
+  stripeAccountId  String?
+
+  desks     Desk[]
+  bookings  Booking[] @relation("RenterBookings")
+  payouts   Payout[]
+  reviews   Review[]
+  favorites Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Desk {
+  id      String @id @default(cuid())
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  title_en       String
+  title_he       String?
+  description_en String
+  description_he String?
+  houseRules_en  String?
+  houseRules_he  String?
+
+  address String
+  city    String
+  country String
+  lat     Float?
+  lng     Float?
+
+  pricePerDay Int
+  currency    String
+
+  amenities Json
+  isActive  Boolean @default(true)
+
+  photos         DeskPhoto[]
+  bookings       Booking[]
+  blockedDates   DeskBlockedDate[]
+  availableDates DeskAvailableDate[]
+  reviews        Review[]
+  favorites      Favorite[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeskPhoto {
+  id        String   @id @default(cuid())
+  desk      Desk     @relation(fields: [deskId], references: [id])
+  deskId    String
+  url       String
+  thumbnailUrl String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model DeskBlockedDate {
+  id        String      @id @default(cuid())
+  desk      Desk        @relation(fields: [deskId], references: [id])
+  deskId    String
+  date      DateTime
+  reason    BlockReason
+  createdAt DateTime    @default(now())
+}
+
+model DeskAvailableDate {
+  id        String   @id @default(cuid())
+  desk      Desk     @relation(fields: [deskId], references: [id], onDelete: Cascade)
+  deskId    String
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([deskId, date])
+}
+
+model Booking {
+  id     String @id @default(cuid())
+  desk   Desk   @relation(fields: [deskId], references: [id])
+  deskId String
+
+  renter   User   @relation("RenterBookings", fields: [renterId], references: [id])
+  renterId String
+
+  startDate DateTime
+  endDate   DateTime
+  bookedDates Json? // Array of date strings in YYYY-MM-DD format
+
+  totalAmount     Int
+  deskOwnerAmount Int
+  platformFee     Int
+  currency        String
+
+  status BookingStatus @default(PENDING)
+
+  stripePaymentIntentId   String?
+  stripeCheckoutSessionId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payout  Payout?
+  reviews Review[]
+}
+
+model Payout {
+  id      String @id @default(cuid())
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String
+
+  // One payout per booking – bookingId must be unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  bookingId String  @unique
+
+  amount   Int
+  currency String
+  status   PayoutStatus @default(PENDING)
+
+  stripeTransferId String?
+  payoutDate       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Review {
+  id        String  @id @default(cuid())
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  bookingId String
+
+  author   User   @relation(fields: [authorId], references: [id])
+  authorId String
+
+  desk   Desk   @relation(fields: [deskId], references: [id])
+  deskId String
+
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  desk      Desk     @relation(fields: [deskId], references: [id], onDelete: Cascade)
+  deskId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, deskId])
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String
+  data      Json?
+  createdAt DateTime @default(now())
+}
