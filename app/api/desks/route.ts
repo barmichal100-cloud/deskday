@@ -160,13 +160,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ desk }, { status: 201 });
   } catch (err) {
     console.error("Error creating desk:", err);
-    // In development, return the error details to help debugging. In production keep it generic.
-    // Return error name and stack to help local debugging. Remove or guard this before shipping.
-    const detail = err instanceof Error ? { name: err.name, stack: err.stack } : { detail: String(err) };
-    const devPayload =
-      process.env.NODE_ENV === "production"
-        ? { error: "Internal server error while creating desk." }
-        : { error: "Internal server error while creating desk.", detail };
-    return NextResponse.json(devPayload, { status: 500 });
+    // Temporarily expose error details for debugging
+    const detail = err instanceof Error ? {
+      name: err.name,
+      message: err.message,
+      stack: err.stack
+    } : { detail: String(err) };
+    return NextResponse.json({
+      error: "Internal server error while creating desk.",
+      detail
+    }, { status: 500 });
   }
 }
