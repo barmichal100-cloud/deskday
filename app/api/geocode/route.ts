@@ -71,7 +71,7 @@ export async function GET(req: Request) {
           context: country ? [{ id: `country.${country}`, text: country }] : []
         };
       })
-      .filter(Boolean);
+      .filter((f): f is NonNullable<typeof f> => f !== null);
 
     // If Nominatim returned results but none of them contain the query as a substring
     // in the label or city, try a Photon fallback which tends to provide stronger
