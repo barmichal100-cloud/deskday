@@ -27,11 +27,16 @@ export async function POST(req: Request) {
       // handle file uploads
       const files = form.getAll('images');
       if (files.length > 0) {
-        const MAX_IMAGES = 6;
-        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-        await fs.mkdir(uploadDir, { recursive: true });
+        // Skip file uploads in production (Vercel read-only filesystem)
+        // TODO: Integrate cloud storage (Vercel Blob, S3, or Cloudinary)
+        if (process.env.NODE_ENV === 'production') {
+          console.warn('File uploads disabled in production - implement cloud storage');
+        } else {
+          const MAX_IMAGES = 6;
+          const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+          const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+          const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+          await fs.mkdir(uploadDir, { recursive: true });
         for (const f of files) {
           if (uploadedFiles.length >= MAX_IMAGES) break;
           try {
@@ -73,6 +78,7 @@ export async function POST(req: Request) {
           } catch (err) {
             console.warn('file save failed', err);
           }
+        }
         }
       }
     } else {
