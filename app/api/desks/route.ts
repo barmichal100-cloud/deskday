@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateNewDeskInput } from "@/lib/validation2";
 import { getCurrentUserId } from "@/lib/auth";
-import fs from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 import sharp from "sharp";
 
 export async function POST(req: Request) {
@@ -24,61 +23,76 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Invalid payload JSON' }, { status: 400 });
       }
 
-      // handle file uploads
+      // handle file uploads with Vercel Blob
       const files = form.getAll('images');
       if (files.length > 0) {
-        // Skip file uploads in production (Vercel read-only filesystem)
-        // TODO: Integrate cloud storage (Vercel Blob, S3, or Cloudinary)
-        if (process.env.NODE_ENV === 'production') {
-          console.warn('File uploads disabled in production - implement cloud storage');
-        } else {
-          const MAX_IMAGES = 6;
-          const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-          const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-          const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-          await fs.mkdir(uploadDir, { recursive: true });
+        const MAX_IMAGES = 6;
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
         for (const f of files) {
           if (uploadedFiles.length >= MAX_IMAGES) break;
           try {
-            // File-like objects from formData implement arrayBuffer()
-            // Accept only File-like objects
             if (!(f instanceof File) && !(f && typeof (f as any).arrayBuffer === 'function')) continue;
             const fileObj = f as File;
+
             // validate type/size
             const ftype = String((fileObj as any).type || '');
             const fsize = Number((fileObj as any).size || 0);
             if (!ALLOWED_TYPES.includes(ftype) || (fsize > MAX_IMAGE_SIZE && fsize > 0)) {
-              // skip invalid files
               console.warn('skipping invalid file', { name: fileObj.name, type: ftype, size: fsize });
               continue;
             }
-            const buf = Buffer.from(await fileObj.arrayBuffer());
-            // simple filename sanitization
-            const name = String(fileObj.name || 'upload').replace(/[^a-z0-9.\-]/gi, '_');
-            const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${name}`;
-            const dest = path.join(uploadDir, filename);
-            await fs.writeFile(dest, buf);
-            const fileUrl = `/uploads/${filename}`;
 
-            // generate thumbnails: small (400x300 webp) and medium (800x600 webp)
-            const thumbSmall = `thumb-400x300-${filename}.webp`;
-            const thumbMedium = `thumb-800x600-${filename}.webp`;
+            const buf = Buffer.from(await fileObj.arrayBuffer());
+            const name = String(fileObj.name || 'upload').replace(/[^a-z0-9.\-]/gi, '_');
+            const filename = `desk-${Date.now()}-${Math.random().toString(36).slice(2,8)}-${name}`;
+
+            // Upload original image to Vercel Blob
+            const blob = await put(filename, buf, {
+              access: 'public',
+              contentType: ftype,
+            });
+
+            // Generate thumbnails and upload them
+            let thumbSmallUrl = blob.url;
+            let thumbMediumUrl = blob.url;
+
             try {
-              await sharp(buf).resize(400, 300, { fit: 'cover' }).webp({ quality: 80 }).toFile(path.join(uploadDir, thumbSmall));
-              await sharp(buf).resize(800, 600, { fit: 'cover' }).webp({ quality: 85 }).toFile(path.join(uploadDir, thumbMedium));
+              // Small thumbnail (400x300)
+              const thumbSmallBuf = await sharp(buf)
+                .resize(400, 300, { fit: 'cover' })
+                .webp({ quality: 80 })
+                .toBuffer();
+              const thumbSmallBlob = await put(`thumb-400x300-${filename}.webp`, thumbSmallBuf, {
+                access: 'public',
+                contentType: 'image/webp',
+              });
+              thumbSmallUrl = thumbSmallBlob.url;
+
+              // Medium thumbnail (800x600)
+              const thumbMediumBuf = await sharp(buf)
+                .resize(800, 600, { fit: 'cover' })
+                .webp({ quality: 85 })
+                .toBuffer();
+              const thumbMediumBlob = await put(`thumb-800x600-${filename}.webp`, thumbMediumBuf, {
+                access: 'public',
+                contentType: 'image/webp',
+              });
+              thumbMediumUrl = thumbMediumBlob.url;
             } catch (err) {
               console.warn('thumbnail generation failed', err);
             }
 
-            uploadedFiles.push({ url: fileUrl, filename });
-            // attach thumbnail urls too (match index later)
-            // we'll set the expected thumbnail filenames on the uploadedFiles map
-            (uploadedFiles[uploadedFiles.length - 1] as any).thumbnailSmall = `/uploads/${thumbSmall}`;
-            (uploadedFiles[uploadedFiles.length - 1] as any).thumbnailMedium = `/uploads/${thumbMedium}`;
+            uploadedFiles.push({
+              url: blob.url,
+              filename,
+              thumbnailSmall: thumbSmallUrl,
+              thumbnailMedium: thumbMediumUrl,
+            } as any);
           } catch (err) {
-            console.warn('file save failed', err);
+            console.warn('file upload failed', err);
           }
-        }
         }
       }
     } else {
