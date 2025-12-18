@@ -246,7 +246,7 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
           <div className="flex flex-col md:flex-row md:items-center divide-y md:divide-y-0 md:divide-x divide-gray-300">
             {/* Where */}
             <div className="flex-1 relative px-6 py-3">
-              <label className="block text-xs font-semibold text-gray-900 mb-1">
+              <label className="block text-xs font-semibold text-gray-900 mb-1 text-left">
                 Where
               </label>
               <input
@@ -306,7 +306,7 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
 
             {/* When */}
             <div className="flex-1 px-6 py-3">
-              <label className="block text-xs font-semibold text-gray-900 mb-1">
+              <label className="block text-xs font-semibold text-gray-900 mb-1 text-left">
                 When
               </label>
               <input
