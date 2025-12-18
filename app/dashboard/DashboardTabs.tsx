@@ -215,9 +215,13 @@ export default function DashboardTabs({
                       </div>
                       <Link
                         href={`/dashboard/owner/desks/${desk.id}/edit`}
-                        className="text-sm font-semibold text-gray-700 hover:text-gray-900 underline"
+                        className="text-xs rounded px-2 py-1 border border-gray-300 hover:bg-gray-50 flex items-center gap-1"
+                        aria-label="Edit desk"
+                        title="Edit desk"
                       >
-                        Edit
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
                       </Link>
                     </div>
                     <p className="text-base font-semibold text-gray-900 mb-2">
