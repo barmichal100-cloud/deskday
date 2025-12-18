@@ -314,7 +314,7 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none"
+                className="w-full bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none cursor-pointer"
               />
             </div>
 
