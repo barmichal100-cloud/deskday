@@ -8,9 +8,10 @@ type Props = {
   pricePerDay: number;
   currency: string;
   availableDates: Date[];
+  isOwnDesk?: boolean;
 };
 
-export default function BookingCard({ deskId, pricePerDay, currency, availableDates }: Props) {
+export default function BookingCard({ deskId, pricePerDay, currency, availableDates, isOwnDesk = false }: Props) {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
@@ -21,11 +22,6 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
   const availableDateStrings = new Set(
     availableDates.map((d) => d.toISOString().split('T')[0])
   );
-
-  console.log('BookingCard rendered');
-  console.log('deskId:', deskId);
-  console.log('availableDates passed in:', availableDates);
-  console.log('availableDateStrings:', Array.from(availableDateStrings));
 
   function generateCalendar(year: number, month: number) {
     const firstDay = new Date(year, month, 1);
@@ -70,26 +66,17 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
   ];
 
   function toggleDate(dateStr: string) {
-    console.log('toggleDate called with:', dateStr);
-    console.log('availableDateStrings:', Array.from(availableDateStrings));
-
-    if (!availableDateStrings.has(dateStr)) {
-      console.log('Date not available:', dateStr);
-      return;
-    }
+    if (!availableDateStrings.has(dateStr)) return;
 
     setError(null);
     const newSelected = new Set(selectedDates);
 
     if (newSelected.has(dateStr)) {
-      console.log('Removing date from selection');
       newSelected.delete(dateStr);
     } else {
-      console.log('Adding date to selection');
       newSelected.add(dateStr);
     }
 
-    console.log('New selected dates:', Array.from(newSelected));
     setSelectedDates(newSelected);
   }
 
@@ -105,11 +92,7 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
   const total = subtotal + platformFee;
 
   function handleReserve() {
-    console.log('handleReserve called, selectedDates.size:', selectedDates.size);
-    console.log('selectedDates:', Array.from(selectedDates));
-
     if (selectedDates.size === 0) {
-      console.log('No dates selected, showing error');
       setError('Please select at least one date');
       return;
     }
@@ -118,7 +101,6 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
     const sortedDates = Array.from(selectedDates).sort();
     const datesParam = sortedDates.join(',');
 
-    console.log('Navigating to:', `/desk/${deskId}/book?dates=${datesParam}`);
     router.push(`/desk/${deskId}/book?dates=${datesParam}`);
   }
 
@@ -245,17 +227,27 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
         </div>
       )}
 
-      <button
-        onClick={handleReserve}
-        disabled={selectedDates.size === 0}
-        className="w-full rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:from-pink-600 hover:to-rose-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Reserve
-      </button>
+      {isOwnDesk ? (
+        <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
+          <p className="text-sm text-gray-700 text-center">
+            This is your desk. You cannot book your own desk.
+          </p>
+        </div>
+      ) : (
+        <>
+          <button
+            onClick={handleReserve}
+            disabled={selectedDates.size === 0}
+            className="w-full rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:from-pink-600 hover:to-rose-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Reserve
+          </button>
 
-      <p className="text-xs text-center text-gray-600 mt-3">
-        You won&apos;t be charged yet
-      </p>
+          <p className="text-xs text-center text-gray-600 mt-3">
+            You won&apos;t be charged yet
+          </p>
+        </>
+      )}
     </div>
   );
 }

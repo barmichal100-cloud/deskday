@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import BookingCard from './BookingCard';
 import Header from '../../Header';
 import SuccessBanner from './SuccessBanner';
+import { getCurrentUserId } from '@/lib/auth';
 
 type DeskPageProps = {
   params: Promise<{ id: string }>;
@@ -32,6 +33,9 @@ export default async function DeskPage({ params, searchParams }: DeskPageProps &
       </main>
     );
   }
+
+  // Get current user ID to check if they own this desk
+  const userId = await getCurrentUserId();
 
   const desk = await prisma.desk.findUnique({
     where: { id },
@@ -178,6 +182,7 @@ export default async function DeskPage({ params, searchParams }: DeskPageProps &
               pricePerDay={desk.pricePerDay}
               currency={desk.currency}
               availableDates={availableDates}
+              isOwnDesk={userId === desk.ownerId}
             />
           </div>
         </div>
