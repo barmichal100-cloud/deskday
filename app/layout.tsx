@@ -11,6 +11,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Deskday",
   description: "Find a desk for a day in real offices.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
