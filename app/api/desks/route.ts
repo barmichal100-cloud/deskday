@@ -126,6 +126,7 @@ export async function POST(req: Request) {
 
     // Build desk create input and attach any uploaded files as DeskPhoto entries
     const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: (f as any).thumbnailSmall }));
+    console.log('Photos to create:', photosToCreate.length, 'photos');
 
     // Parse available dates from body (array of ISO date strings)
     const availableDates: string[] = Array.isArray(body.availableDates) ? body.availableDates : [];

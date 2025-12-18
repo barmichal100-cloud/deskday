@@ -8,7 +8,11 @@
       "Bash(npx prisma generate:*)",
       "Bash(taskkill:*)",
       "Bash(cat:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(cmd /c \"tasklist /FI \"\"IMAGENAME eq node.exe\"\" /FO CSV | findstr node\")"
     ],
     "deny": [],
     "ask": []
