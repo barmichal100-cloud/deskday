@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getCurrentUserId } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+// Owner desks management page
 export default async function OwnerDesksPage() {
   const userId = await getCurrentUserId();
 
