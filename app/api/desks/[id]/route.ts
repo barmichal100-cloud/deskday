@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { validateNewDeskInput } from '@/lib/validation2';
 import { getCurrentUserId } from '@/lib/auth';
-import fs from 'fs/promises';
-import path from 'path';
+import { put } from '@vercel/blob';
 import sharp from 'sharp';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -28,8 +27,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         const MAX_IMAGES = 6;
         const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
         const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-        await fs.mkdir(uploadDir, { recursive: true });
+
         for (const f of files) {
           if (uploadedFiles.length >= MAX_IMAGES) break;
           try {
@@ -37,23 +35,54 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
             const fileObj = f as File;
             const ftype = String((fileObj as any).type || '');
             const fsize = Number((fileObj as any).size || 0);
-            if (!ALLOWED_TYPES.includes(ftype) || (fsize > MAX_IMAGE_SIZE && fsize > 0)) continue;
-            const buf = Buffer.from(await fileObj.arrayBuffer());
-            const name = String(fileObj.name || 'upload').replace(/[^a-z0-9.\-]/gi, '_');
-            const filename = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${name}`;
-            const dest = path.join(uploadDir, filename);
-            await fs.writeFile(dest, buf);
-
-            const thumbSmall = `thumb-400x300-${filename}.webp`;
-            try {
-              await sharp(buf).resize(400, 300, { fit: 'cover' }).webp({ quality: 80 }).toFile(path.join(uploadDir, thumbSmall));
-            } catch (err) {
-              console.warn('thumbnail creation failed for update', err);
+            if (!ALLOWED_TYPES.includes(ftype) || (fsize > MAX_IMAGE_SIZE && fsize > 0)) {
+              console.warn('skipping invalid file', { name: fileObj.name, type: ftype, size: fsize });
+              continue;
             }
 
-            uploadedFiles.push({ url: `/uploads/${filename}`, filename, thumbnailSmall: `/uploads/${thumbSmall}` });
+            const buf = Buffer.from(await fileObj.arrayBuffer());
+            const name = String(fileObj.name || 'upload').replace(/[^a-z0-9.\-]/gi, '_');
+            const filename = `desk-${Date.now()}-${Math.random().toString(36).slice(2,8)}-${name}`;
+
+            // Upload original image to Vercel Blob
+            const blob = await put(filename, buf, {
+              access: 'public',
+              contentType: ftype,
+            });
+
+            // Generate thumbnails and upload them
+            let thumbSmallUrl = blob.url;
+            let thumbMediumUrl = blob.url;
+
+            try {
+              // Small thumbnail (400x300)
+              const thumbSmallBuf = await sharp(buf)
+                .resize(400, 300, { fit: 'cover' })
+                .webp({ quality: 80 })
+                .toBuffer();
+              const thumbSmallBlob = await put(`thumb-400x300-${filename}.webp`, thumbSmallBuf, {
+                access: 'public',
+                contentType: 'image/webp',
+              });
+              thumbSmallUrl = thumbSmallBlob.url;
+
+              // Medium thumbnail (800x600)
+              const thumbMediumBuf = await sharp(buf)
+                .resize(800, 600, { fit: 'cover' })
+                .webp({ quality: 85 })
+                .toBuffer();
+              const thumbMediumBlob = await put(`thumb-800x600-${filename}.webp`, thumbMediumBuf, {
+                access: 'public',
+                contentType: 'image/webp',
+              });
+              thumbMediumUrl = thumbMediumBlob.url;
+            } catch (err) {
+              console.warn('thumbnail generation failed', err);
+            }
+
+            uploadedFiles.push({ url: blob.url, filename, thumbnailSmall: thumbSmallUrl });
           } catch (err) {
-            console.warn('file save failed', err);
+            console.warn('file upload failed', err);
           }
         }
       }
