@@ -4,8 +4,23 @@ import SearchForm from './SearchForm';
 import DeskCard from './DeskCard';
 import UserMenuWrapper from './UserMenuWrapper';
 import ListDeskButton from './ListDeskButton';
+import { getCurrentUserId } from '@/lib/auth';
+import { cookies } from 'next/headers';
 
 export default async function HomePage() {
+  // Get current user if logged in
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
+  let userId: string | null = null;
+
+  if (token) {
+    try {
+      userId = await getCurrentUserId({ headers: { get: () => `Bearer ${token}` } } as any);
+    } catch (e) {
+      // User not logged in or invalid token
+    }
+  }
+
   // Fetch recent desks from the DB
   const desks = await prisma.desk.findMany({
     take: 12,
@@ -20,6 +35,14 @@ export default async function HomePage() {
       currency: true,
     },
   });
+
+  // Fetch user's favorites if logged in
+  const favoriteIds = userId
+    ? (await prisma.favorite.findMany({
+        where: { userId },
+        select: { deskId: true },
+      })).map(f => f.deskId)
+    : [];
 
   return (
     <main className="min-h-screen bg-white">
@@ -84,7 +107,11 @@ export default async function HomePage() {
         ) : (
           <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {desks.map((desk) => (
-              <DeskCard key={desk.id} desk={desk} />
+              <DeskCard
+                key={desk.id}
+                desk={desk}
+                initialIsFavorite={favoriteIds.includes(desk.id)}
+              />
             ))}
           </div>
         )}
