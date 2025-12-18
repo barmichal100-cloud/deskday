@@ -40,3 +40,30 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Date input styling */
+input[type="date"] {
+  position: relative;
+  font-family: inherit;
+}
+
+/* Style the calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Hide the clear button on date inputs */
+input[type="date"]::-webkit-clear-button {
+  display: none;
+}
+
+/* Firefox date input styling */
+input[type="date"]::-moz-clear-button {
+  display: none;
+}
