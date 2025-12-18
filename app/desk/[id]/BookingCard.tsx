@@ -22,6 +22,11 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
     availableDates.map((d) => d.toISOString().split('T')[0])
   );
 
+  console.log('BookingCard rendered');
+  console.log('deskId:', deskId);
+  console.log('availableDates passed in:', availableDates);
+  console.log('availableDateStrings:', Array.from(availableDateStrings));
+
   function generateCalendar(year: number, month: number) {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -65,17 +70,26 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
   ];
 
   function toggleDate(dateStr: string) {
-    if (!availableDateStrings.has(dateStr)) return;
+    console.log('toggleDate called with:', dateStr);
+    console.log('availableDateStrings:', Array.from(availableDateStrings));
+
+    if (!availableDateStrings.has(dateStr)) {
+      console.log('Date not available:', dateStr);
+      return;
+    }
 
     setError(null);
     const newSelected = new Set(selectedDates);
 
     if (newSelected.has(dateStr)) {
+      console.log('Removing date from selection');
       newSelected.delete(dateStr);
     } else {
+      console.log('Adding date to selection');
       newSelected.add(dateStr);
     }
 
+    console.log('New selected dates:', Array.from(newSelected));
     setSelectedDates(newSelected);
   }
 
@@ -91,7 +105,11 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
   const total = subtotal + platformFee;
 
   function handleReserve() {
+    console.log('handleReserve called, selectedDates.size:', selectedDates.size);
+    console.log('selectedDates:', Array.from(selectedDates));
+
     if (selectedDates.size === 0) {
+      console.log('No dates selected, showing error');
       setError('Please select at least one date');
       return;
     }
@@ -100,6 +118,7 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
     const sortedDates = Array.from(selectedDates).sort();
     const datesParam = sortedDates.join(',');
 
+    console.log('Navigating to:', `/desk/${deskId}/book?dates=${datesParam}`);
     router.push(`/desk/${deskId}/book?dates=${datesParam}`);
   }
 
