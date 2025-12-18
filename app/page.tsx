@@ -5,21 +5,10 @@ import DeskCard from './DeskCard';
 import UserMenuWrapper from './UserMenuWrapper';
 import ListDeskButton from './ListDeskButton';
 import { getCurrentUserId } from '@/lib/auth';
-import { cookies } from 'next/headers';
 
 export default async function HomePage() {
   // Get current user if logged in
-  const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token')?.value;
-  let userId: string | null = null;
-
-  if (token) {
-    try {
-      userId = await getCurrentUserId({ headers: { get: () => `Bearer ${token}` } } as any);
-    } catch (e) {
-      // User not logged in or invalid token
-    }
-  }
+  const userId = await getCurrentUserId();
 
   // Fetch recent desks from the DB
   const desks = await prisma.desk.findMany({
