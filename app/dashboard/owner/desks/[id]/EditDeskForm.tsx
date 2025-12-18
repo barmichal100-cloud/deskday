@@ -343,6 +343,23 @@ export default function EditDeskForm({ desk }: any) {
         const newPreviewsArr = newFilePreviews.slice();
         newPreviewsArr[croppingIndex] = URL.createObjectURL(croppedFile);
         setNewFilePreviews(newPreviewsArr);
+      } else {
+        // Cropping an existing photo - mark it for removal and add as new file
+        const filename = `cropped-existing-${Date.now()}.jpg`;
+        const croppedFile = new File([blob], filename, { type: 'image/jpeg' });
+
+        // Mark the existing photo for removal
+        const clone = existingPhotos.slice();
+        clone[croppingIndex] = { ...clone[croppingIndex], markedForRemove: true };
+        setExistingPhotos(clone);
+
+        // Add the cropped version as a new file
+        const newImagesArr = [...newFiles, croppedFile];
+        setNewFiles(newImagesArr);
+
+        const newPreviewUrl = URL.createObjectURL(croppedFile);
+        const newPreviewsArr = [...newFilePreviews, newPreviewUrl];
+        setNewFilePreviews(newPreviewsArr);
       }
 
       setCroppingIndex(null);
@@ -571,18 +588,36 @@ export default function EditDeskForm({ desk }: any) {
               return (
                 <div key={p.id} className="relative rounded-lg overflow-hidden border border-gray-200 shadow-sm" style={{ aspectRatio: '4 / 3' }}>
                   <Image src={p.thumbnailUrl ?? p.url} alt={`photo-${displayIdx}`} fill style={{ objectFit: 'cover' }} />
-                  <button
-                    type="button"
-                    aria-label={`Remove image ${displayIdx + 1}`}
-                    className="absolute left-2 top-2 bg-white/90 text-xs rounded-full px-2 py-1 shadow-sm font-medium text-gray-700 hover:bg-white"
-                    onClick={() => {
-                      const clone = existingPhotos.slice();
-                      clone[originalIdx] = { ...clone[originalIdx], markedForRemove: true };
-                      setExistingPhotos(clone);
-                    }}
-                  >
-                    ✕
-                  </button>
+                  <div className="absolute left-2 top-2 flex items-start gap-2">
+                    <button
+                      type="button"
+                      aria-label={`Remove image ${displayIdx + 1}`}
+                      className="bg-white/90 text-xs rounded-full px-2 py-1 shadow-sm font-medium text-gray-700 hover:bg-white"
+                      onClick={() => {
+                        const clone = existingPhotos.slice();
+                        clone[originalIdx] = { ...clone[originalIdx], markedForRemove: true };
+                        setExistingPhotos(clone);
+                      }}
+                    >
+                      ✕
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Crop image ${displayIdx + 1}`}
+                      title="Crop this image"
+                      className="bg-white/90 text-xs rounded-md px-2 py-1 shadow-sm font-medium text-gray-700 hover:bg-white"
+                      onClick={() => {
+                        setCroppingType('existing');
+                        setCroppingIndex(originalIdx);
+                        // reset crop/zoom
+                        setCrop({ x: 0, y: 0 });
+                        setZoom(1);
+                        setCroppedAreaPixels(null);
+                      }}
+                    >
+                      Crop
+                    </button>
+                  </div>
                 </div>
               );
             })}
