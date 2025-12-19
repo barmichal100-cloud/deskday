@@ -79,7 +79,6 @@ input[type="date"]::-moz-clear-button {
 
 .react-datepicker-popper {
   z-index: 9999 !important;
-  transform: translate3d(0, 0, 0) !important;
 }
 
 .react-datepicker-popper[data-placement^="bottom"] {
