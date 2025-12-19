@@ -23,6 +23,8 @@ export default function PaymentsTabs({
   const [activeTab, setActiveTab] = useState<"payments" | "payouts">(
     tabParam || "payments"
   );
+  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+  const [showManagePaymentsModal, setShowManagePaymentsModal] = useState(false);
 
   useEffect(() => {
     if (tabParam) {
@@ -70,7 +72,10 @@ export default function PaymentsTabs({
             <p className="text-gray-600 mb-6">
               Keep track of all your payments and refunds.
             </p>
-            <button className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition">
+            <button
+              onClick={() => setShowManagePaymentsModal(true)}
+              className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition"
+            >
               Manage payments
             </button>
           </div>
@@ -81,7 +86,7 @@ export default function PaymentsTabs({
               Payment methods
             </h2>
             <p className="text-gray-600 mb-6">
-              Add a payment method using our secure payment system, then start planning your next trip.
+              Add a payment method using our secure payment system, then start booking desks.
             </p>
 
             {hasPaymentMethod ? (
@@ -102,12 +107,18 @@ export default function PaymentsTabs({
                     Edit
                   </button>
                 </div>
-                <button className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition">
+                <button
+                  onClick={() => setShowAddPaymentModal(true)}
+                  className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition"
+                >
                   Add payment method
                 </button>
               </div>
             ) : (
-              <button className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition">
+              <button
+                onClick={() => setShowAddPaymentModal(true)}
+                className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition"
+              >
                 Add payment method
               </button>
             )}
@@ -243,6 +254,202 @@ export default function PaymentsTabs({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Manage Payments Modal */}
+      {showManagePaymentsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Your payments</h2>
+              <button
+                onClick={() => setShowManagePaymentsModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-600 mb-6">
+                Once you have a reservation, this is where you can come to track your payments and refunds.
+              </p>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                <h3 className="font-medium text-gray-900 mb-2">Need help?</h3>
+                <div className="space-y-3">
+                  <Link
+                    href="/help/payments/plans"
+                    className="flex items-center justify-between text-gray-900 hover:underline"
+                    onClick={() => setShowManagePaymentsModal(false)}
+                  >
+                    <span>How do payment plans work?</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/help/payments/find"
+                    className="flex items-center justify-between text-gray-900 hover:underline"
+                    onClick={() => setShowManagePaymentsModal(false)}
+                  >
+                    <span>Where can I find my payment?</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Payment Method Modal */}
+      {showAddPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Add card details</h2>
+              <button
+                onClick={() => setShowAddPaymentModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex gap-3 mb-6">
+                <svg className="w-10 h-7" viewBox="0 0 38 24" fill="none">
+                  <rect width="38" height="24" rx="4" fill="#1434CB"/>
+                  <path d="M13 8h-3v8h3V8zm-1.5 9.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z" fill="#FFB600"/>
+                  <circle cx="17.5" cy="12" r="4.5" fill="#FF5F00"/>
+                  <circle cx="20.5" cy="12" r="4.5" fill="#EB001B"/>
+                </svg>
+                <svg className="w-10 h-7" viewBox="0 0 38 24">
+                  <rect width="38" height="24" rx="4" fill="#016FD0"/>
+                  <path d="M19 6l-3 12h3l3-12h-3zm8 0l-4 8.5 1.5 3.5h3l3-12h-3l-1 5-1-5h.5zm-10 0l-2 7 1 5h3l4-12h-3l-2 7-1-7z" fill="white"/>
+                </svg>
+                <svg className="w-10 h-7" viewBox="0 0 38 24">
+                  <rect width="38" height="24" rx="4" fill="#006FCF"/>
+                  <path d="M15 8h8v8h-8V8z" fill="#FFF"/>
+                  <path d="M11 12h16M15 9h8M15 15h8" stroke="#006FCF" strokeWidth="0.5"/>
+                </svg>
+              </div>
+
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Card number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="1234 1234 1234 1234"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Expiration
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="MM / YY"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="123"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-6 mt-6">
+                  <h3 className="font-medium text-gray-900 mb-4">Billing address</h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Street address
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Apt or suite number
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          County
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Postcode
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddPaymentModal(false)}
+                    className="px-6 py-3 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 text-sm font-semibold text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition"
+                  >
+                    Done
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>
