@@ -7,6 +7,8 @@ export type User = {
   name: string | null;
   role: "RENTER" | "OWNER" | "ADMIN";
   preferredLocale: "EN" | "HE";
+  stripeCustomerId: string | null;
+  stripeAccountId: string | null;
 };
 
 export async function getUser(): Promise<User | null> {
@@ -25,6 +27,8 @@ export async function getUser(): Promise<User | null> {
         name: true,
         role: true,
         preferredLocale: true,
+        stripeCustomerId: true,
+        stripeAccountId: true,
       },
     });
 
