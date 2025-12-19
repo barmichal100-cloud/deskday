@@ -81,6 +81,14 @@ input[type="date"]::-moz-clear-button {
   z-index: 9999 !important;
 }
 
+.react-datepicker-popper[data-placement^="top"] {
+  display: none !important;
+}
+
+.react-datepicker__portal .react-datepicker-popper[data-placement^="top"] {
+  display: none !important;
+}
+
 .react-datepicker {
   font-family: inherit;
   border: none;

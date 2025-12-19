@@ -326,7 +326,10 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
                 className="w-full bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none cursor-pointer"
                 calendarClassName="custom-datepicker"
                 wrapperClassName="w-full"
-                popperPlacement="bottom-start"
+                popperPlacement="bottom"
+                popperProps={{
+                  strategy: "fixed"
+                }}
               />
             </div>
 
