@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -20,6 +20,7 @@ export default function DashboardTabs({
   userRole,
 }: Props) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const tabParam = searchParams.get('tab') as "desks" | "received" | "made" | null;
   const bookingIdParam = searchParams.get('booking');
   const cancelledParam = searchParams.get('cancelled');
@@ -36,6 +37,8 @@ export default function DashboardTabs({
   );
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showCancelledMessage, setShowCancelledMessage] = useState(false);
+  const [deleteConfirmDeskId, setDeleteConfirmDeskId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Update active tab when URL parameter changes
   useEffect(() => {
@@ -78,6 +81,31 @@ export default function DashboardTabs({
       .split("_")
       .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
       .join(" ");
+  };
+
+  const handleDeleteDesk = async (deskId: string) => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/desk/${deskId}/delete`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        alert(data.error || "Failed to delete desk");
+        setIsDeleting(false);
+        return;
+      }
+
+      // Refresh the page to show updated desk list
+      router.refresh();
+      setDeleteConfirmDeskId(null);
+    } catch (error) {
+      console.error("Error deleting desk:", error);
+      alert("An error occurred while deleting the desk");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -213,16 +241,28 @@ export default function DashboardTabs({
                           {desk.city}, {desk.country}
                         </p>
                       </div>
-                      <Link
-                        href={`/dashboard/owner/desks/${desk.id}/edit`}
-                        className="text-xs rounded px-2 py-1 border border-gray-300 hover:bg-gray-50 flex items-center gap-1"
-                        aria-label="Edit desk"
-                        title="Edit desk"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/dashboard/owner/desks/${desk.id}/edit`}
+                          className="text-xs rounded px-2 py-1 border border-gray-300 hover:bg-gray-50 flex items-center gap-1"
+                          aria-label="Edit desk"
+                          title="Edit desk"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </Link>
+                        <button
+                          onClick={() => setDeleteConfirmDeskId(desk.id)}
+                          className="text-xs rounded px-2 py-1 border border-red-300 text-red-600 hover:bg-red-50 flex items-center gap-1"
+                          aria-label="Delete desk"
+                          title="Delete desk"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                     <p className="text-base font-semibold text-gray-900 mb-2">
                       {desk.pricePerDay / 100} {desk.currency} <span className="font-normal text-gray-600">per day</span>
@@ -399,6 +439,38 @@ export default function DashboardTabs({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirmDeskId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Are you sure you want to delete this desk?
+              </h3>
+              <p className="text-sm text-gray-600">
+                Details will be permanently deleted. This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirmDeskId(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteDesk(deleteConfirmDeskId)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "OK"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
