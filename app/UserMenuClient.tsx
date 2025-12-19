@@ -206,7 +206,7 @@ export default function UserMenuClient({ initialUser }: Props) {
           <div className="border-t border-gray-200 my-2"></div>
 
           <Link
-            href="/dashboard"
+            href="/settings"
             className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
             onClick={() => setIsOpen(false)}
           >
