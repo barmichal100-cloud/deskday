@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ALLOWED_LOCATIONS } from "@/lib/locations";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 type MapboxContextItem = { id: string; text?: string; short_code?: string };
 type MapboxFeature = {
@@ -30,6 +32,9 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
   const router = useRouter();
   const [location, setLocation] = useState(initialLocation);
   const [date, setDate] = useState(initialDate);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    initialDate ? new Date(initialDate) : null
+  );
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [locationSuggestions, setLocationSuggestions] = useState<MapboxFeature[]>([]);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -309,12 +314,18 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
               <label className="block text-xs font-semibold text-gray-900 mb-1 text-left">
                 When
               </label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                min={new Date().toISOString().split("T")[0]}
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date: Date | null) => {
+                  setSelectedDate(date);
+                  setDate(date ? date.toISOString().split("T")[0] : "");
+                }}
+                minDate={new Date()}
+                placeholderText="Select date"
+                dateFormat="MMM d, yyyy"
                 className="w-full bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none cursor-pointer"
+                calendarClassName="custom-datepicker"
+                wrapperClassName="w-full"
               />
             </div>
 
