@@ -51,15 +51,23 @@ export async function DELETE(
     // Delete related records first
     await prisma.$transaction([
       // Delete photos
-      prisma.photo.deleteMany({
+      prisma.deskPhoto.deleteMany({
         where: { deskId },
       }),
       // Delete available dates
-      prisma.availableDate.deleteMany({
+      prisma.deskAvailableDate.deleteMany({
         where: { deskId },
       }),
-      // Delete amenities
-      prisma.deskAmenity.deleteMany({
+      // Delete blocked dates
+      prisma.deskBlockedDate.deleteMany({
+        where: { deskId },
+      }),
+      // Delete favorites
+      prisma.favorite.deleteMany({
+        where: { deskId },
+      }),
+      // Delete reviews
+      prisma.review.deleteMany({
         where: { deskId },
       }),
       // Delete the desk
