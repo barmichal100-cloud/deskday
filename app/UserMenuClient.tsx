@@ -171,7 +171,7 @@ export default function UserMenuClient({ initialUser }: Props) {
           </Link>
 
           <Link
-            href="/dashboard"
+            href={user.role === "OWNER" ? "/dashboard/owner?tab=received" : "/dashboard/renter?tab=made"}
             className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
             onClick={() => setIsOpen(false)}
           >
