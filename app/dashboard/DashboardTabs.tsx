@@ -39,6 +39,7 @@ export default function DashboardTabs({
   const [showCancelledMessage, setShowCancelledMessage] = useState(false);
   const [deleteConfirmDeskId, setDeleteConfirmDeskId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Update active tab when URL parameter changes
   useEffect(() => {
@@ -92,7 +93,8 @@ export default function DashboardTabs({
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || "Failed to delete desk");
+        setErrorMessage(data.error || "Failed to delete desk");
+        setDeleteConfirmDeskId(null);
         setIsDeleting(false);
         return;
       }
@@ -102,7 +104,8 @@ export default function DashboardTabs({
       setDeleteConfirmDeskId(null);
     } catch (error) {
       console.error("Error deleting desk:", error);
-      alert("An error occurred while deleting the desk");
+      setErrorMessage("An error occurred while deleting the desk");
+      setDeleteConfirmDeskId(null);
     } finally {
       setIsDeleting(false);
     }
@@ -468,6 +471,27 @@ export default function DashboardTabs({
                 className="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
               >
                 {isDeleting ? "Deleting..." : "OK"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Message Dialog */}
+      {errorMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div className="mb-4">
+              <p className="text-base text-gray-900">
+                {errorMessage}
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setErrorMessage(null)}
+                className="px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-500 rounded-lg hover:from-pink-600 hover:to-rose-600 transition"
+              >
+                OK
               </button>
             </div>
           </div>
