@@ -327,16 +327,6 @@ export default function SearchForm({ initialLocation = "", initialDate = "" }: P
                 calendarClassName="custom-datepicker"
                 wrapperClassName="w-full"
                 popperPlacement="bottom-start"
-                popperModifiers={[
-                  {
-                    name: "preventOverflow",
-                    options: {
-                      enabled: true,
-                      escapeWithReference: false,
-                      boundariesElement: "viewport"
-                    }
-                  }
-                ]}
               />
             </div>
 
