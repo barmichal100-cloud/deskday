@@ -18,6 +18,12 @@ enum Locale {
   HE
 }
 
+enum Currency {
+  ILS
+  USD
+  EUR
+}
+
 enum BookingStatus {
   PENDING    // Temporary state while Stripe checkout is in progress
   CONFIRMED  // Payment successful, booking is active
@@ -37,16 +43,17 @@ enum PayoutStatus {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  passwordHash     String
-  name             String?
-  companyName      String?
-  phone            String?
-  role             UserRole @default(RENTER)
-  preferredLocale  Locale   @default(EN)
-  stripeCustomerId String?
-  stripeAccountId  String?
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  passwordHash       String
+  name               String?
+  companyName        String?
+  phone              String?
+  role               UserRole @default(RENTER)
+  preferredLocale    Locale   @default(EN)
+  preferredCurrency  Currency @default(ILS)
+  stripeCustomerId   String?
+  stripeAccountId    String?
 
   desks                    Desk[]
   bookings                 Booking[] @relation("RenterBookings")

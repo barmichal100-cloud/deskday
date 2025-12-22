@@ -11,20 +11,40 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { preferredLocale } = body;
+    const { preferredLocale, preferredCurrency } = body;
 
-    // Validate locale
-    if (!preferredLocale || !["EN", "HE"].includes(preferredLocale)) {
-      return NextResponse.json(
-        { error: "Invalid locale" },
-        { status: 400 }
-      );
+    // Build update data object
+    const updateData: {
+      preferredLocale?: "EN" | "HE";
+      preferredCurrency?: "ILS" | "USD" | "EUR";
+    } = {};
+
+    // Validate and add locale if provided
+    if (preferredLocale !== undefined) {
+      if (!["EN", "HE"].includes(preferredLocale)) {
+        return NextResponse.json(
+          { error: "Invalid locale" },
+          { status: 400 }
+        );
+      }
+      updateData.preferredLocale = preferredLocale;
     }
 
-    // Update user preference
+    // Validate and add currency if provided
+    if (preferredCurrency !== undefined) {
+      if (!["ILS", "USD", "EUR"].includes(preferredCurrency)) {
+        return NextResponse.json(
+          { error: "Invalid currency" },
+          { status: 400 }
+        );
+      }
+      updateData.preferredCurrency = preferredCurrency;
+    }
+
+    // Update user preferences
     await prisma.user.update({
       where: { id: user.id },
-      data: { preferredLocale },
+      data: updateData,
     });
 
     return NextResponse.json({ success: true });
