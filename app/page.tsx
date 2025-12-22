@@ -4,6 +4,7 @@ import SearchForm from './SearchForm';
 import DeskCard from './DeskCard';
 import UserMenuWrapper from './UserMenuWrapper';
 import ListDeskButton from './ListDeskButton';
+import LanguageCurrencySelectorWrapper from './LanguageCurrencySelectorWrapper';
 import { getCurrentUserId } from '@/lib/auth';
 
 export default async function HomePage() {
@@ -62,7 +63,9 @@ export default async function HomePage() {
             </Link>
 
             {/* Right side navigation */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <LanguageCurrencySelectorWrapper />
+              <div className="h-6 w-px bg-gray-300"></div>
               <UserMenuWrapper />
             </div>
           </div>
