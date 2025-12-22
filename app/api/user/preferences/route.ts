@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getUser();
 
-    if (\!user) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const { preferredLocale } = body;
 
     // Validate locale
-    if (\!preferredLocale || \!["EN", "HE"].includes(preferredLocale)) {
+    if (!preferredLocale || !["EN", "HE"].includes(preferredLocale)) {
       return NextResponse.json(
         { error: "Invalid locale" },
         { status: 400 }
