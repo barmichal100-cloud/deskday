@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n/I18nProvider";
 
 type User = {
   id: string;
@@ -22,6 +23,7 @@ export default function UserMenuClient({ initialUser }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setUser(initialUser);
@@ -85,7 +87,7 @@ export default function UserMenuClient({ initialUser }: Props) {
           href="/auth/sign-in"
           className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
         >
-          Login
+          {t("userMenu.login")}
         </Link>
         <Link
           href="/auth/sign-in"
@@ -114,7 +116,7 @@ export default function UserMenuClient({ initialUser }: Props) {
         href={user.role === "OWNER" ? "/dashboard/owner" : "/dashboard/renter"}
         className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
       >
-        Dashboard
+        {t("nav.dashboard")}
       </Link>
 
       {/* Role Switcher Button */}
@@ -123,7 +125,7 @@ export default function UserMenuClient({ initialUser }: Props) {
           onClick={() => handleSwitchRole("RENTER")}
           className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
         >
-          Switch to Desk Renter
+          {t("nav.switchToDeskRenter")}
         </button>
       )}
       {user.role === "RENTER" && (
@@ -131,7 +133,7 @@ export default function UserMenuClient({ initialUser }: Props) {
           onClick={() => handleSwitchRole("OWNER")}
           className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
         >
-          Switch to Desk Owner
+          {t("nav.switchToDeskOwner")}
         </button>
       )}
 
@@ -153,9 +155,9 @@ export default function UserMenuClient({ initialUser }: Props) {
         <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-50">
           {/* User greeting */}
           <div className="px-4 py-3 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-900">Hello, {displayName}</p>
+            <p className="text-sm font-semibold text-gray-900">{t("userMenu.hello", { name: displayName })}</p>
             <p className="text-xs text-gray-600 mt-0.5">
-              {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
+              {user.role === "OWNER" ? t("userMenu.deskOwnerMode") : t("userMenu.deskRenterMode")}
             </p>
           </div>
 
@@ -168,7 +170,7 @@ export default function UserMenuClient({ initialUser }: Props) {
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span>Profile</span>
+            <span>{t("userMenu.profile")}</span>
           </Link>
 
           <Link
@@ -179,7 +181,7 @@ export default function UserMenuClient({ initialUser }: Props) {
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <span>My Bookings</span>
+            <span>{t("userMenu.myBookings")}</span>
           </Link>
 
           <Link
@@ -190,7 +192,7 @@ export default function UserMenuClient({ initialUser }: Props) {
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            <span>My Favorites</span>
+            <span>{t("userMenu.myFavorites")}</span>
           </Link>
 
           <Link
@@ -201,7 +203,7 @@ export default function UserMenuClient({ initialUser }: Props) {
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <span>My Messages</span>
+            <span>{t("userMenu.myMessages")}</span>
           </Link>
 
           <div className="border-t border-gray-200 my-2"></div>
@@ -215,7 +217,7 @@ export default function UserMenuClient({ initialUser }: Props) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span>Account Settings</span>
+            <span>{t("userMenu.accountSettings")}</span>
           </Link>
 
           <Link
@@ -226,7 +228,7 @@ export default function UserMenuClient({ initialUser }: Props) {
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>Help</span>
+            <span>{t("userMenu.help")}</span>
           </Link>
 
           <div className="border-t border-gray-200 my-2"></div>
@@ -238,7 +240,7 @@ export default function UserMenuClient({ initialUser }: Props) {
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span>Log out</span>
+            <span>{t("userMenu.logout")}</span>
           </button>
         </div>
       )}
