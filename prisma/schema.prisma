@@ -48,11 +48,12 @@ model User {
   stripeCustomerId String?
   stripeAccountId  String?
 
-  desks     Desk[]
-  bookings  Booking[] @relation("RenterBookings")
-  payouts   Payout[]
-  reviews   Review[]
-  favorites Favorite[]
+  desks                    Desk[]
+  bookings                 Booking[] @relation("RenterBookings")
+  payouts                  Payout[]
+  reviews                  Review[]
+  favorites                Favorite[]
+  notificationPreferences  NotificationPreferences?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -203,4 +204,52 @@ model SystemLog {
   type      String
   data      Json?
   createdAt DateTime @default(now())
+}
+
+model NotificationPreferences {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  // Booking notifications
+  bookingConfirmationEmail Boolean @default(true)
+  bookingConfirmationPush  Boolean @default(true)
+  bookingConfirmationSms   Boolean @default(false)
+
+  bookingReminderEmail Boolean @default(true)
+  bookingReminderPush  Boolean @default(true)
+  bookingReminderSms   Boolean @default(false)
+
+  bookingCancellationEmail Boolean @default(true)
+  bookingCancellationPush  Boolean @default(true)
+  bookingCancellationSms   Boolean @default(false)
+
+  // Owner notifications
+  newBookingRequestEmail Boolean @default(true)
+  newBookingRequestPush  Boolean @default(true)
+  newBookingRequestSms   Boolean @default(false)
+
+  paymentReceivedEmail Boolean @default(true)
+  paymentReceivedPush  Boolean @default(false)
+  paymentReceivedSms   Boolean @default(false)
+
+  reviewReceivedEmail Boolean @default(true)
+  reviewReceivedPush  Boolean @default(true)
+  reviewReceivedSms   Boolean @default(false)
+
+  // General notifications
+  accountActivityEmail Boolean @default(true)
+  accountActivityPush  Boolean @default(false)
+  accountActivitySms   Boolean @default(false)
+
+  promotionsAndTipsEmail Boolean @default(false)
+  promotionsAndTipsPush  Boolean @default(false)
+  promotionsAndTipsSms   Boolean @default(false)
+
+  newsAndUpdatesEmail Boolean @default(false)
+  newsAndUpdatesPush  Boolean @default(false)
+  newsAndUpdatesSms   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

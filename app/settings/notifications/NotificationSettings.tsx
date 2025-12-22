@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Props = {
   userRole: "RENTER" | "OWNER" | "ADMIN";
@@ -38,6 +38,27 @@ export default function NotificationSettings({ userRole, userEmail }: Props) {
   });
 
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load preferences on mount
+  useEffect(() => {
+    loadPreferences();
+  }, []);
+
+  const loadPreferences = async () => {
+    try {
+      const response = await fetch("/api/notifications/preferences");
+      if (response.ok) {
+        const data = await response.json();
+        setPreferences(data);
+      }
+    } catch (error) {
+      console.error("Error loading preferences:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleToggle = (
     category: keyof NotificationPreferences,
@@ -52,10 +73,33 @@ export default function NotificationSettings({ userRole, userEmail }: Props) {
     }));
   };
 
-  const handleSave = () => {
-    // TODO: Save to database
-    setSaveMessage("Notification preferences saved successfully");
-    setTimeout(() => setSaveMessage(null), 3000);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveMessage(null);
+
+    try {
+      const response = await fetch("/api/notifications/preferences", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(preferences),
+      });
+
+      if (response.ok) {
+        setSaveMessage("Notification preferences saved successfully");
+        setTimeout(() => setSaveMessage(null), 3000);
+      } else {
+        setSaveMessage("Failed to save preferences. Please try again.");
+        setTimeout(() => setSaveMessage(null), 5000);
+      }
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      setSaveMessage("An error occurred. Please try again.");
+      setTimeout(() => setSaveMessage(null), 5000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const NotificationRow = ({
@@ -235,9 +279,10 @@ export default function NotificationSettings({ userRole, userEmail }: Props) {
       <div className="pt-4">
         <button
           onClick={handleSave}
-          className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition"
+          disabled={isSaving}
+          className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save preferences
+          {isSaving ? "Saving..." : "Save preferences"}
         </button>
       </div>
     </div>
