@@ -10,6 +10,7 @@ type User = {
   name: string | null;
   role: "RENTER" | "OWNER" | "ADMIN";
   preferredLocale: "EN" | "HE";
+  preferredCurrency: "ILS" | "USD" | "EUR";
 };
 
 type HeaderClientProps = {
