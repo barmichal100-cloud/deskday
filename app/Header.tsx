@@ -1,12 +1,25 @@
 import Link from "next/link";
 import UserMenuWrapper from "./UserMenuWrapper";
+import LanguageCurrencySelector from "./LanguageCurrencySelector";
+import { getUser } from "@/lib/getUser";
 
 type HeaderProps = {
   backHref?: string;
   backText?: string;
+  showLanguageCurrency?: boolean;
+  hideRoleSwitch?: boolean;
+  hideDashboard?: boolean;
 };
 
-export default function Header({ backHref = "/", backText = "Home" }: HeaderProps) {
+export default async function Header({
+  backHref = "/",
+  backText = "Home",
+  showLanguageCurrency = true,
+  hideRoleSwitch = false,
+  hideDashboard = false
+}: HeaderProps) {
+  const user = await getUser();
+
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
       <div className="px-6 lg:px-20 py-4">
@@ -46,7 +59,16 @@ export default function Header({ backHref = "/", backText = "Home" }: HeaderProp
 
           {/* Right navigation */}
           <div className="flex items-center gap-4">
-            <UserMenuWrapper />
+            {/* Language/Currency Selector */}
+            {showLanguageCurrency && (
+              <LanguageCurrencySelector
+                currentLocale={user?.preferredLocale || "EN"}
+                currentCurrency={user?.preferredCurrency || "ILS"}
+              />
+            )}
+
+            {/* User Menu */}
+            <UserMenuWrapper hideRoleSwitch={hideRoleSwitch} hideDashboard={hideDashboard} />
           </div>
         </div>
       </div>

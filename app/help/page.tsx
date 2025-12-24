@@ -1,16 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import SimpleHeader from "@/app/SimpleHeader";
-import { useState } from "react";
+import Header from "@/app/Header";
 
 export default function HelpCentrePage() {
-  const [activeTab, setActiveTab] = useState<"renter" | "owner">("renter");
-  const [searchQuery, setSearchQuery] = useState("");
-
   return (
     <div className="min-h-screen bg-white">
-      <SimpleHeader />
+      <Header backHref="/" backText="Home" hideRoleSwitch={true} hideDashboard={true} />
 
       {/* Hero Section */}
       <div className="px-6 lg:px-20 py-16 text-center">
@@ -22,17 +16,9 @@ export default function HelpCentrePage() {
             <input
               type="text"
               placeholder="Search how-tos and more"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-6 py-4 pr-14 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-lg"
             />
             <button
-              onClick={() => {
-                if (searchQuery.trim()) {
-                  console.log("Searching for:", searchQuery);
-                  // Add search functionality here
-                }
-              }}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition"
             >
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,26 +33,12 @@ export default function HelpCentrePage() {
       <div className="px-6 lg:px-20">
         <div className="border-b border-gray-200">
           <div className="flex gap-8">
-            <button
-              onClick={() => setActiveTab("renter")}
-              className={`pb-4 px-1 border-b-2 font-semibold transition ${
-                activeTab === "renter"
-                  ? "border-gray-900 text-gray-900"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
+            <div className="pb-4 px-1 border-b-2 border-gray-900 text-gray-900 font-semibold">
               Desk Renter
-            </button>
-            <button
-              onClick={() => setActiveTab("owner")}
-              className={`pb-4 px-1 border-b-2 font-semibold transition ${
-                activeTab === "owner"
-                  ? "border-gray-900 text-gray-900"
-                  : "border-transparent text-gray-600 hover:text-gray-900"
-              }`}
-            >
+            </div>
+            <div className="pb-4 px-1 border-b-2 border-transparent text-gray-600">
               Desk Owner
-            </button>
+            </div>
           </div>
         </div>
 
