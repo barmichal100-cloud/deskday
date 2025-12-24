@@ -115,45 +115,47 @@ export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hi
     <div className="flex items-center gap-3">
       {/* Mode Indicator & Dashboard - Only show when not hidden */}
       {!hideDashboard && !hideRoleSwitch && (
-        <div className="hidden md:flex items-center gap-6">
-          {/* Mode Badge */}
-          <div className="flex flex-col items-end">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
-            </span>
+        <div className="hidden md:flex flex-col items-end gap-6">
+          {/* Mode Badge - Bold and above both sections */}
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
+          </span>
+
+          <div className="flex items-center gap-6">
+            {/* Dashboard Link */}
             <Link
               href={user.role === "OWNER" ? "/dashboard/owner" : "/dashboard/renter"}
               className="text-sm text-gray-900 hover:text-rose-500 transition"
             >
               {user.role === "OWNER" ? "Owner Dashboard" : "Renter Dashboard"}
             </Link>
+
+            {/* Vertical Divider */}
+            <div className="h-10 w-px bg-gray-300"></div>
+
+            {/* Role Switcher */}
+            {user.role === "OWNER" ? (
+              <button
+                onClick={() => handleSwitchRole("RENTER")}
+                className="text-sm text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                Switch to Renter
+              </button>
+            ) : (
+              <button
+                onClick={() => handleSwitchRole("OWNER")}
+                className="text-sm text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                Switch to Owner
+              </button>
+            )}
           </div>
-
-          {/* Vertical Divider */}
-          <div className="h-10 w-px bg-gray-300"></div>
-
-          {/* Role Switcher */}
-          {user.role === "OWNER" ? (
-            <button
-              onClick={() => handleSwitchRole("RENTER")}
-              className="text-sm text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              Switch to Renter
-            </button>
-          ) : (
-            <button
-              onClick={() => handleSwitchRole("OWNER")}
-              className="text-sm text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              Switch to Owner
-            </button>
-          )}
         </div>
       )}
 
