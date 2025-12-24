@@ -14,21 +14,6 @@ export default function Footer() {
                   Help Centre
                 </Link>
               </li>
-              <li>
-                <Link href="/help/safety" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  Get help with a safety issue
-                </Link>
-              </li>
-              <li>
-                <Link href="/help/cancellation" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  Cancellation options
-                </Link>
-              </li>
-              <li>
-                <Link href="/help/report" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  Report neighbourhood concern
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -39,16 +24,6 @@ export default function Footer() {
               <li>
                 <Link href="/dashboard/owner" className="text-sm text-gray-600 hover:text-gray-900 transition">
                   List your desk
-                </Link>
-              </li>
-              <li>
-                <Link href="/help/hosting" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  Hosting resources
-                </Link>
-              </li>
-              <li>
-                <Link href="/help/hosting/forum" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  Community forum
                 </Link>
               </li>
               <li>
@@ -63,16 +38,6 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900 mb-4">deskday</h3>
             <ul className="space-y-3">
-              <li>
-                <Link href="/about" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  About us
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="text-sm text-gray-600 hover:text-gray-900 transition">
-                  Careers
-                </Link>
-              </li>
               <li>
                 <Link href="/how-it-works" className="text-sm text-gray-600 hover:text-gray-900 transition">
                   How it works
