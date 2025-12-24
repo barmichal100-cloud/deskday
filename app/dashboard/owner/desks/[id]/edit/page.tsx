@@ -18,7 +18,7 @@ export default async function EditPage({ params }: Props) {
   if (!desk) {
     return (
       <main className="min-h-screen bg-white">
-        <Header backHref="/dashboard" backText="Back to dashboard" />
+        <Header backHref="/dashboard" backText="Dashboard" />
         <section className="px-6 lg:px-20 py-12">
           <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">Desk not found</h1>
           <p className="text-sm text-gray-600">Could not find the desk you want to edit.</p>

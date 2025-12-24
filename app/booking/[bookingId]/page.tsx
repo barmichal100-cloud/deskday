@@ -51,7 +51,7 @@ export default async function BookingDetailsPage({ params }: BookingDetailsPageP
 
   return (
     <main className="min-h-screen bg-white">
-      <Header backHref="/dashboard" backText="Back to dashboard" />
+      <Header backHref="/dashboard" backText="Dashboard" />
       <div className="max-w-4xl mx-auto px-6 py-10 bg-gray-50">
         {/* Header */}
         <div className="mb-8">

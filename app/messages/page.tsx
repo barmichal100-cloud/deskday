@@ -30,7 +30,7 @@ export default async function MessagesPage({ searchParams }: MessagesPageProps) 
 
   return (
     <main className="min-h-screen bg-white">
-      <Header backHref="/" backText="Back to home" />
+      <Header backHref="/" backText="Home" />
       <div className="max-w-6xl mx-auto px-6 py-10 bg-gray-50">
         {/* Header */}
         <div className="mb-8">

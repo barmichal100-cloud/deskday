@@ -73,7 +73,7 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-white">
-        <HeaderClient backHref="/profile" backText="Back to profile" />
+        <HeaderClient backHref="/profile" backText="Profile" />
         <div className="max-w-2xl mx-auto px-6 py-10">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>

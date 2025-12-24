@@ -38,7 +38,7 @@ export default async function MockPaymentPage({ params }: PaymentPageProps) {
 
   return (
     <main className="min-h-screen bg-white">
-      <Header backHref={`/desk/${booking.deskId}/book?dates=${datesParam}`} backText="Back to booking details" />
+      <Header backHref={`/desk/${booking.deskId}/book?dates=${datesParam}`} backText="Booking" />
 
       <div className="max-w-2xl mx-auto px-6 py-10 bg-gray-50">
         {/* Mock Stripe-style header */}

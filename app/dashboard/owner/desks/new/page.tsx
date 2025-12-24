@@ -414,7 +414,7 @@ export default function NewDeskPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <HeaderClient backHref="/dashboard" backText="Back to dashboard" />
+      <HeaderClient backHref="/dashboard" backText="Dashboard" />
 
       <section className="px-6 lg:px-20 py-12">
         <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">

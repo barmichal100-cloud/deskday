@@ -15,7 +15,9 @@
       "Bash(cmd /c \"tasklist /FI \"\"IMAGENAME eq node.exe\"\" /FO CSV | findstr node\")",
       "Bash(dir:*)",
       "Bash(findstr:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

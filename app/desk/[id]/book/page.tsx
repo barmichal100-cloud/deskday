@@ -88,7 +88,7 @@ export default async function BookingReviewPage({
 
   return (
     <main className="min-h-screen bg-white">
-      <Header backHref={`/desk/${deskId}`} backText="Back to desk" />
+      <Header backHref={`/desk/${deskId}`} backText="Desk" />
 
       <div className="max-w-5xl mx-auto px-6 py-10 bg-gray-50">
         {/* Header */}
