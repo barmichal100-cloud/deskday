@@ -1,6 +1,40 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/auth/me");
+        setIsLoggedIn(res.ok);
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
+  const handleListYourDesk = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (isLoggedIn === null) {
+      // Still checking auth status
+      return;
+    }
+
+    if (isLoggedIn) {
+      router.push("https://deskday.vercel.app/dashboard/owner/desks/new");
+    } else {
+      router.push("https://deskday.vercel.app/auth/sign-in");
+    }
+  };
+
   return (
     <footer className="bg-gray-50 border-t border-gray-200 mt-auto">
       <div className="px-6 lg:px-20 py-12">
@@ -22,9 +56,13 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Hosting</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/dashboard/owner" className="text-sm text-gray-600 hover:text-gray-900 transition">
+                <a
+                  href="#"
+                  onClick={handleListYourDesk}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition cursor-pointer"
+                >
                   List your desk
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href="/help/hosting/responsible" className="text-sm text-gray-600 hover:text-gray-900 transition">
