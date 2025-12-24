@@ -115,15 +115,11 @@ export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hi
     <div className="flex items-center gap-3">
       {/* Mode Indicator & Dashboard - Only show when not hidden */}
       {!hideDashboard && !hideRoleSwitch && (
-        <>
-          {/* Vertical Divider before mode section */}
-          <div className="hidden md:block h-12 w-px bg-gray-300"></div>
-
-          <div className="hidden md:flex flex-col items-center gap-2">
-            {/* Mode Badge - Bold and centered above both sections */}
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
-            </span>
+        <div className="hidden md:flex flex-col items-center gap-2">
+          {/* Mode Badge - Bold and centered above both sections with border */}
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide border border-gray-300 px-3 py-1 rounded">
+            {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
+          </span>
 
             <div className="flex items-center gap-3">
               {/* Dashboard Link */}
@@ -160,8 +156,7 @@ export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hi
                 </button>
               )}
             </div>
-          </div>
-        </>
+        </div>
       )}
 
       {/* Dashboard only (for pages that hide role switch) */}
