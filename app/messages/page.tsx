@@ -28,13 +28,9 @@ export default async function MessagesPage({ searchParams }: MessagesPageProps) 
     });
   }
 
-  // Determine back link - if coming from booking details, go back there; otherwise go to dashboard
-  const backHref = bookingId ? `/booking/${bookingId}` : "/dashboard";
-  const backText = bookingId ? "Back to booking details" : "Back to dashboard";
-
   return (
     <main className="min-h-screen bg-white">
-      <Header backHref={backHref} backText={backText} />
+      <Header backHref="/" backText="Back to home" />
       <div className="max-w-6xl mx-auto px-6 py-10 bg-gray-50">
         {/* Header */}
         <div className="mb-8">
