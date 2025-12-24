@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import UserMenuClient from "./UserMenuClient";
+import LanguageCurrencySelector from "./LanguageCurrencySelector";
 
 type User = {
   id: string;
@@ -16,9 +17,18 @@ type User = {
 type HeaderClientProps = {
   backHref?: string;
   backText?: string;
+  showLanguageCurrency?: boolean;
+  hideRoleSwitch?: boolean;
+  hideDashboard?: boolean;
 };
 
-export default function HeaderClient({ backHref = "/", backText = "Home" }: HeaderClientProps) {
+export default function HeaderClient({
+  backHref = "/",
+  backText = "Home",
+  showLanguageCurrency = true,
+  hideRoleSwitch = false,
+  hideDashboard = false
+}: HeaderClientProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,17 +57,8 @@ export default function HeaderClient({ backHref = "/", backText = "Home" }: Head
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
       <div className="px-6 lg:px-20 py-4">
         <div className="flex items-center justify-between">
-          {/* Left side - Back button and Logo */}
-          <div className="flex items-center gap-3">
-            <Link
-              href={backHref}
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              <span className="hidden sm:inline">{backText}</span>
-            </Link>
+          {/* Left side - Logo and Back link */}
+          <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-1">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center p-1">
                 <svg viewBox="0 0 32 32" fill="none" className="w-full h-full">
@@ -78,14 +79,38 @@ export default function HeaderClient({ backHref = "/", backText = "Home" }: Head
                 deskday
               </span>
             </Link>
+            <Link
+              href={backHref}
+              className="inline-flex items-center gap-2 text-sm text-gray-900 hover:text-gray-600 transition"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              {backText}
+            </Link>
           </div>
 
-          {/* Right navigation - User menu with client-side auth */}
+          {/* Right navigation */}
           <div className="flex items-center gap-4">
             {loading ? (
               <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
             ) : (
-              <UserMenuClient initialUser={user} />
+              <>
+                {/* Language/Currency Selector */}
+                {showLanguageCurrency && (
+                  <LanguageCurrencySelector
+                    currentLocale={user?.preferredLocale || "EN"}
+                    currentCurrency={user?.preferredCurrency || "ILS"}
+                  />
+                )}
+
+                {/* User Menu */}
+                <UserMenuClient
+                  initialUser={user}
+                  hideRoleSwitch={hideRoleSwitch}
+                  hideDashboard={hideDashboard}
+                />
+              </>
             )}
           </div>
         </div>
