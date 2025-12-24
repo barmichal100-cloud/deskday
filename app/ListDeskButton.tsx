@@ -4,8 +4,10 @@ import { getUser } from "@/lib/getUser";
 export default async function ListDeskButton() {
   const user = await getUser();
 
-  // If user is logged in, go to create listing page, otherwise go to sign up with redirect
-  const href = user ? "/dashboard/owner/desks/new" : "/auth/sign-up?redirect=/dashboard/owner";
+  // If user is logged in, go to create listing page, otherwise go to sign in
+  const href = user
+    ? "https://deskday.vercel.app/dashboard/owner/desks/new"
+    : "https://deskday.vercel.app/auth/sign-in";
 
   return (
     <Link
