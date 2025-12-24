@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import LanguageCurrencySelector from "./LanguageCurrencySelector";
+import UserMenuClient from "./UserMenuClient";
 
 type User = {
   id: string;
@@ -16,7 +17,6 @@ type User = {
 export default function SimpleHeader() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
@@ -38,9 +38,6 @@ export default function SimpleHeader() {
 
     fetchUser();
   }, []);
-
-  const displayName = user?.name || user?.email.split("@")[0] || "";
-  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -81,70 +78,8 @@ export default function SimpleHeader() {
             {/* User Menu */}
             {loading ? (
               <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse" />
-            ) : !user ? (
-              <Link
-                href="/auth/sign-in"
-                className="flex items-center gap-2 border border-gray-300 rounded-full px-3 py-2 hover:shadow-md transition"
-              >
-                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                <div className="w-7 h-7 bg-gray-600 rounded-full flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              </Link>
             ) : (
-              <div className="relative">
-                <button
-                  onClick={() => setIsOpen(!isOpen)}
-                  className="flex items-center gap-2 border border-gray-300 rounded-full px-3 py-2 hover:shadow-md transition"
-                >
-                  <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                  <div className="w-7 h-7 bg-gray-900 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-semibold">{initial}</span>
-                  </div>
-                </button>
-
-                {isOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-50">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="text-sm font-semibold text-gray-900">Hello, {displayName}</p>
-                    </div>
-
-                    <Link
-                      href="/profile"
-                      className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      <span>Profile</span>
-                    </Link>
-
-                    <div className="border-t border-gray-200 my-2"></div>
-
-                    <button
-                      onClick={async () => {
-                        await fetch("/api/auth/signout", { method: "POST" });
-                        setUser(null);
-                        setIsOpen(false);
-                        window.location.href = "/";
-                      }}
-                      className="w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
-                    >
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                      <span>Log out</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              <UserMenuClient initialUser={user} hideRoleSwitch={true} hideDashboard={true} />
             )}
           </div>
         </div>

@@ -16,9 +16,11 @@ type User = {
 
 type Props = {
   initialUser: User | null;
+  hideRoleSwitch?: boolean;
+  hideDashboard?: boolean;
 };
 
-export default function UserMenuClient({ initialUser }: Props) {
+export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hideDashboard = false }: Props) {
   const [user, setUser] = useState<User | null>(initialUser);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -112,15 +114,17 @@ export default function UserMenuClient({ initialUser }: Props) {
   return (
     <div className="flex items-center gap-3">
       {/* Dashboard Button */}
-      <Link
-        href={user.role === "OWNER" ? "/dashboard/owner" : "/dashboard/renter"}
-        className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
-      >
-        {t("nav.dashboard")}
-      </Link>
+      {!hideDashboard && (
+        <Link
+          href={user.role === "OWNER" ? "/dashboard/owner" : "/dashboard/renter"}
+          className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
+        >
+          {t("nav.dashboard")}
+        </Link>
+      )}
 
       {/* Role Switcher Button */}
-      {user.role === "OWNER" && (
+      {!hideRoleSwitch && user.role === "OWNER" && (
         <button
           onClick={() => handleSwitchRole("RENTER")}
           className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
@@ -128,7 +132,7 @@ export default function UserMenuClient({ initialUser }: Props) {
           {t("nav.switchToDeskRenter")}
         </button>
       )}
-      {user.role === "RENTER" && (
+      {!hideRoleSwitch && user.role === "RENTER" && (
         <button
           onClick={() => handleSwitchRole("OWNER")}
           className="text-sm font-semibold text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-full transition hidden md:block"
