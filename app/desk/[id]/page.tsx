@@ -65,7 +65,7 @@ export default async function DeskPage({ params, searchParams }: DeskPageProps &
 
   // Build back URL based on where user came from
   let backUrl = '/';
-  let backText = 'Back to home';
+  let backText = 'Home';
 
   if (search.from === 'search') {
     // Build search URL with location and date if available
@@ -73,7 +73,7 @@ export default async function DeskPage({ params, searchParams }: DeskPageProps &
     if (search.location) searchParams.set('location', search.location);
     if (search.date) searchParams.set('date', search.date);
     backUrl = `/search${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-    backText = 'Back to search';
+    backText = 'Search';
   }
 
   return (

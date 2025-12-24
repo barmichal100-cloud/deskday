@@ -57,17 +57,8 @@ export default async function OwnerDashboardPage() {
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="px-6 lg:px-20 py-4">
           <div className="flex items-center justify-between">
-            {/* Left side - Back button and Logo */}
-            <div className="flex items-center gap-3">
-              <Link
-                href="/"
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span className="hidden sm:inline">Home</span>
-              </Link>
+            {/* Left side - Logo and Back link */}
+            <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-1">
                 <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center p-1">
                   <svg viewBox="0 0 32 32" fill="none" className="w-full h-full">
@@ -87,6 +78,15 @@ export default async function OwnerDashboardPage() {
                 <span className="text-xl font-bold text-rose-500 tracking-tight">
                   deskday
                 </span>
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-sm text-gray-900 hover:text-gray-600 transition"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Home
               </Link>
             </div>
 

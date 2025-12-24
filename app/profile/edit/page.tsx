@@ -85,7 +85,7 @@ export default function EditProfilePage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <HeaderClient backHref="/profile" backText="Back to profile" />
+      <HeaderClient backHref="/profile" backText="Profile" />
       <div className="max-w-2xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="mb-8">

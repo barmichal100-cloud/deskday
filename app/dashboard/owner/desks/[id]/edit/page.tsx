@@ -29,7 +29,7 @@ export default async function EditPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-white">
-      <Header backHref="/dashboard" backText="Back to dashboard" />
+      <Header backHref="/dashboard" backText="Dashboard" />
       <section className="px-6 lg:px-20 py-12">
         <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-8">Edit desk</h1>
         <EditDeskForm desk={desk} />

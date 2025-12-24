@@ -215,9 +215,9 @@ export default async function SearchPage({ searchParams }: Props) {
                 </p>
                 <Link
                   href="/"
-                  className="inline-block mt-4 text-sm font-semibold text-rose-500 hover:text-rose-600 transition"
+                  className="inline-block mt-4 text-sm text-rose-500 hover:text-rose-600 transition"
                 >
-                  Back to home
+                  Home
                 </Link>
               </div>
             ) : (
