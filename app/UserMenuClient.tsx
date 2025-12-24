@@ -115,13 +115,13 @@ export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hi
     <div className="flex items-center gap-3">
       {/* Mode Indicator & Dashboard - Only show when not hidden */}
       {!hideDashboard && !hideRoleSwitch && (
-        <div className="hidden md:flex flex-col items-end gap-6">
-          {/* Mode Badge - Bold and above both sections */}
+        <div className="hidden md:flex flex-col items-center gap-2">
+          {/* Mode Badge - Bold and centered above both sections */}
           <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
           </span>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
             {/* Dashboard Link */}
             <Link
               href={user.role === "OWNER" ? "/dashboard/owner" : "/dashboard/renter"}
@@ -131,7 +131,7 @@ export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hi
             </Link>
 
             {/* Vertical Divider */}
-            <div className="h-10 w-px bg-gray-300"></div>
+            <div className="h-6 w-px bg-gray-300"></div>
 
             {/* Role Switcher */}
             {user.role === "OWNER" ? (
