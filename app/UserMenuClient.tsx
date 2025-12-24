@@ -120,8 +120,8 @@ export default function UserMenuClient({ initialUser, hideRoleSwitch = false, hi
           <div className="hidden md:block h-12 w-px bg-gray-300"></div>
 
           <div className="hidden md:flex flex-col items-center gap-2">
-            {/* Mode Badge - Bold and centered above both sections with border */}
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide border border-gray-300 px-3 py-1 rounded">
+            {/* Mode Badge - Bold and centered above both sections */}
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
               {user.role === "OWNER" ? "Desk Owner Mode" : "Desk Renter Mode"}
             </span>
 
