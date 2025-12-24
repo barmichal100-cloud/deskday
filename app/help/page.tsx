@@ -1,7 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import SimpleHeader from "@/app/SimpleHeader";
+import { useState, useEffect } from "react";
 
 export default function HelpCentrePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch("/api/auth/me");
+        setIsLoggedIn(res.ok);
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    }
+    checkAuth();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       <SimpleHeader />
@@ -40,19 +57,21 @@ export default function HelpCentrePage() {
           </div>
         </div>
 
-        {/* Login Section */}
-        <div className="mt-8 mb-12 border border-gray-200 rounded-2xl p-8 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">We're here for you</h2>
-            <p className="text-gray-600">Log in to get help with your reservations, account, and more.</p>
+        {/* Login Section - Only show when user is not logged in */}
+        {isLoggedIn === false && (
+          <div className="mt-8 mb-12 border border-gray-200 rounded-2xl p-8 flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">We're here for you</h2>
+              <p className="text-gray-600">Log in to get help with your reservations, account, and more.</p>
+            </div>
+            <Link
+              href="https://deskday.vercel.app/auth/sign-in"
+              className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition whitespace-nowrap"
+            >
+              Log in or sign up
+            </Link>
           </div>
-          <Link
-            href="/auth/sign-in"
-            className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition whitespace-nowrap"
-          >
-            Log in or sign up
-          </Link>
-        </div>
+        )}
 
         {/* Guides Section */}
         <div className="mb-16">
