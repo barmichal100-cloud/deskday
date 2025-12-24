@@ -1,9 +1,9 @@
-import SimpleHeader from "@/app/SimpleHeader";
+import Header from "@/app/Header";
 
 export default function HowItWorksPage() {
     return (
       <main className="min-h-screen bg-white">
-        <SimpleHeader />
+        <Header backHref="/" backText="Home" hideRoleSwitch={true} hideDashboard={true} />
 
         <section className="px-6 lg:px-20 py-12 md:py-16">
           <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
