@@ -2,22 +2,11 @@
 
 import Link from "next/link";
 import SimpleHeader from "@/app/SimpleHeader";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function HelpCentrePage() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/auth/me");
-        setIsLoggedIn(res.ok);
-      } catch (error) {
-        setIsLoggedIn(false);
-      }
-    }
-    checkAuth();
-  }, []);
+  const [activeTab, setActiveTab] = useState<"renter" | "owner">("renter");
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,9 +22,19 @@ export default function HelpCentrePage() {
             <input
               type="text"
               placeholder="Search how-tos and more"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-6 py-4 pr-14 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-lg"
             />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition">
+            <button
+              onClick={() => {
+                if (searchQuery.trim()) {
+                  console.log("Searching for:", searchQuery);
+                  // Add search functionality here
+                }
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition"
+            >
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -48,41 +47,33 @@ export default function HelpCentrePage() {
       <div className="px-6 lg:px-20">
         <div className="border-b border-gray-200">
           <div className="flex gap-8">
-            <button className="pb-4 px-1 border-b-2 border-gray-900 font-semibold text-gray-900">
+            <button
+              onClick={() => setActiveTab("renter")}
+              className={`pb-4 px-1 border-b-2 font-semibold transition ${
+                activeTab === "renter"
+                  ? "border-gray-900 text-gray-900"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
               Desk Renter
             </button>
-            <button className="pb-4 px-1 text-gray-600 hover:text-gray-900 transition">
+            <button
+              onClick={() => setActiveTab("owner")}
+              className={`pb-4 px-1 border-b-2 font-semibold transition ${
+                activeTab === "owner"
+                  ? "border-gray-900 text-gray-900"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
+              }`}
+            >
               Desk Owner
             </button>
           </div>
         </div>
 
-        {/* Login Section - Only show when user is not logged in */}
-        {isLoggedIn === false && (
-          <div className="mt-8 mb-12 border border-gray-200 rounded-2xl p-8 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">We're here for you</h2>
-              <p className="text-gray-600">Log in to get help with your reservations, account, and more.</p>
-            </div>
-            <Link
-              href="https://deskday.vercel.app/auth/sign-in"
-              className="px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition whitespace-nowrap"
-            >
-              Log in or sign up
-            </Link>
-          </div>
-        )}
-
         {/* Guides Section */}
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-6">
+        <div className="mb-16 mt-12">
+          <div className="mb-6">
             <h2 className="text-3xl font-semibold text-gray-900">Guides for getting started</h2>
-            <Link href="#" className="text-gray-900 font-semibold hover:underline flex items-center gap-2">
-              Browse all topics
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
