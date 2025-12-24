@@ -17,7 +17,8 @@
       "Bash(findstr:*)",
       "Bash(git pull:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(del:*)"
     ],
     "deny": [],
     "ask": []
