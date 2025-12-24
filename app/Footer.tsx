@@ -66,8 +66,8 @@ export default function Footer() {
                 Terms
               </Link>
               <span className="hidden md:inline">·</span>
-              <Link href="/sitemap" className="hover:text-gray-900 transition">
-                Sitemap
+              <Link href="/about/company-details" className="hover:text-gray-900 transition" target="_blank">
+                Company details
               </Link>
             </div>
 
