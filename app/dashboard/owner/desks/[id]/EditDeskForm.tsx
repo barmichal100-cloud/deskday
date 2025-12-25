@@ -205,15 +205,8 @@ export default function EditDeskForm({ desk }: any) {
 
     try {
       // Parse location to extract city and country
-      const selected = locationSuggestions.find(
-        (s) => {
-          const countryObj = s.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'));
-          return `${s.text}, ${countryObj?.text ?? ''}` === location;
-        }
-      );
-
-      const city = selected?.text || location.split(',')[0]?.trim() || "";
-      const country = selected?.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || "";
+      const city = location.split(',')[0]?.trim() || "";
+      const country = location.split(',')[1]?.trim() || "";
 
       const payload = {
         title,
