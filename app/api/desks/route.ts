@@ -1,7 +1,7 @@
 // app/api/desks/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { validateNewDeskInput } from "@/lib/validation2";
+import { validateNewDeskInput, validateAmenities } from "@/lib/validation2";
 import { getCurrentUserId } from "@/lib/auth";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
@@ -171,6 +171,12 @@ export async function POST(req: Request) {
 
     console.log('Will create', availableDatesToCreate.length, 'available date records');
 
+    // Validate amenities
+    const amenitiesValidation = validateAmenities(body.amenities);
+    if (!amenitiesValidation.ok) {
+      return NextResponse.json({ error: "Validation failed", errors: { amenities: amenitiesValidation.error } }, { status: 400 });
+    }
+
     const desk = await prisma.desk.create({
       data: {
         ownerId: ownerId,
@@ -181,7 +187,7 @@ export async function POST(req: Request) {
         description_en: data.description_en,
         pricePerDay: data.pricePerDay ?? 0,
         currency: data.currency,
-        amenities: {}, // TODO: expand later
+        amenities: amenitiesValidation.sanitized || {},
         isActive: true,
         photos: photosToCreate.length > 0 ? { create: photosToCreate } : undefined,
         availableDates: availableDatesToCreate.length > 0 ? { create: availableDatesToCreate } : undefined,

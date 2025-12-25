@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { validateNewDeskInput } from '@/lib/validation2';
+import { validateNewDeskInput, validateAmenities } from '@/lib/validation2';
 import { getCurrentUserId } from '@/lib/auth';
 import { put } from '@vercel/blob';
 import sharp from 'sharp';
@@ -180,8 +180,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     console.log('Will update with', availableDatesToCreate.length, 'available date records');
 
-    // Parse amenities from body
-    const amenities = body.amenities || null;
+    // Validate amenities
+    const amenitiesValidation = validateAmenities(body.amenities);
+    if (!amenitiesValidation.ok) {
+      return NextResponse.json({ error: "Validation failed", errors: { amenities: amenitiesValidation.error } }, { status: 400 });
+    }
 
     // Use a transaction to delete old dates and create new ones atomically
     const updated = await prisma.$transaction(async (tx) => {
@@ -199,7 +202,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
           country: data.country,
           pricePerDay: data.pricePerDay ?? 0,
           currency: data.currency,
-          amenities: amenities,
+          amenities: amenitiesValidation.sanitized || {},
           photos:
             photosToCreate.length > 0
               ? { create: photosToCreate }

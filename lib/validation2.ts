@@ -40,6 +40,61 @@ export interface NewDeskData {
   currency: string;
 }
 
+export function validateAmenities(amenities: any): { ok: boolean; sanitized?: any; error?: string } {
+  if (!amenities || typeof amenities !== 'object') {
+    return { ok: true, sanitized: {} };
+  }
+
+  // Validate structure - only allow specific boolean fields and screens as number
+  const sanitized: any = {};
+
+  if ('wifi' in amenities) {
+    if (typeof amenities.wifi !== 'boolean') {
+      return { ok: false, error: 'WiFi must be true or false' };
+    }
+    sanitized.wifi = amenities.wifi;
+  }
+
+  if ('hdmi' in amenities) {
+    if (typeof amenities.hdmi !== 'boolean') {
+      return { ok: false, error: 'HDMI must be true or false' };
+    }
+    sanitized.hdmi = amenities.hdmi;
+  }
+
+  if ('keyboard' in amenities) {
+    if (typeof amenities.keyboard !== 'boolean') {
+      return { ok: false, error: 'Keyboard must be true or false' };
+    }
+    sanitized.keyboard = amenities.keyboard;
+  }
+
+  if ('mouse' in amenities) {
+    if (typeof amenities.mouse !== 'boolean') {
+      return { ok: false, error: 'Mouse must be true or false' };
+    }
+    sanitized.mouse = amenities.mouse;
+  }
+
+  if ('screens' in amenities) {
+    const screens = Number(amenities.screens);
+    if (!Number.isInteger(screens) || screens < 0 || screens > 10) {
+      return { ok: false, error: 'Screens must be a number between 0 and 10' };
+    }
+    sanitized.screens = screens;
+  }
+
+  // Reject any unknown fields
+  const allowedKeys = ['wifi', 'hdmi', 'keyboard', 'mouse', 'screens'];
+  for (const key of Object.keys(amenities)) {
+    if (!allowedKeys.includes(key)) {
+      return { ok: false, error: `Unknown amenity field: ${key}` };
+    }
+  }
+
+  return { ok: true, sanitized };
+}
+
 async function verifyLocationWithMapbox(city: string, country: string) {
   const key = process.env.MAPBOX_API_KEY;
   if (!key) return { ok: true, info: "no-geocode" };
@@ -145,9 +200,12 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
     }
   }
 
-  // Currency allow-list
-  const currencyRaw = typeof parsed.currency === "string" ? parsed.currency.trim().toUpperCase() : "ILS";
+  // Currency validation - must be one of the allowed values
+  const currencyRaw = typeof parsed.currency === "string" ? parsed.currency.trim().toUpperCase() : "";
   const allowed = ["ILS", "USD", "EUR"];
+  if (!allowed.includes(currencyRaw)) {
+    fieldErrors.currency = "Currency must be one of: ILS, USD, EUR";
+  }
   const currency = allowed.includes(currencyRaw) ? currencyRaw : "ILS";
 
   // If any field errors so far, return them ALL
