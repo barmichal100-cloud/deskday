@@ -408,56 +408,17 @@ export default function EditDeskForm({ desk }: any) {
     setFieldErrors({});
     setIsSubmitting(true);
 
-    // Collect all validation errors before stopping
-    const errors: Record<string, string> = {};
-
-    // Validate location
-    const selected = locationSuggestions.find(
-      (s) => {
-        const countryObj = s.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'));
-        return `${s.text}, ${countryObj?.text ?? ''}` === location;
-      }
-    );
-    if (!location || !selected) {
-      errors.location = "Please select a location from the suggestions.";
-    }
-
-    // Validate images - count both existing photos (not marked for removal) and new files
-    const totalImages = existingPhotos.filter(p => !p.markedForRemove).length + newFiles.length;
-    if (imageErrors) {
-      errors.images = String(imageErrors);
-    } else if (totalImages === 0) {
-      errors.images = "At least 1 image is required.";
-    } else if (totalImages > 6) {
-      errors.images = "Maximum 6 images allowed.";
-    }
-
-    // Validate title (client-side basic check)
-    if (!title || title.trim().length < 10) {
-      errors.title = "Title must be at least 10 characters.";
-    }
-
-    // Validate address
-    if (!address || address.trim().length < 3) {
-      errors.address = "Address is required.";
-    }
-
-    // Validate price
-    const priceNumber = parseFloat(price || "0");
-    if (isNaN(priceNumber) || priceNumber <= 0) {
-      errors.pricePerDay = "Price must be a valid number greater than 0.";
-    }
-
-    // If there are any validation errors, display them all and stop
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      const city = selected!.text || location.split(',')[0]?.trim() || desk.city;
-      const country = selected!.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || desk.country;
+      // Parse location to extract city and country
+      const selected = locationSuggestions.find(
+        (s) => {
+          const countryObj = s.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'));
+          return `${s.text}, ${countryObj?.text ?? ''}` === location;
+        }
+      );
+
+      const city = selected?.text || location.split(',')[0]?.trim() || desk.city;
+      const country = selected?.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || desk.country;
 
       const payload = {
         title,

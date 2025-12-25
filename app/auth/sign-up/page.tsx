@@ -30,13 +30,6 @@ function SignUpForm() {
     const confirmPassword = formData.get("confirmPassword") as string;
     const roleSelection = formData.get("role") as string;
 
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
     // Map the selection to UserRole
     let role = "RENTER";
     if (roleSelection === "owner" || roleSelection === "both") {
@@ -47,7 +40,7 @@ function SignUpForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, confirmPassword, role }),
       });
 
       const data = await res.json();

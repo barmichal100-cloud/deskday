@@ -7,12 +7,20 @@ import { UserRole } from "@prisma/client";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, name, role } = body;
+    const { email, password, confirmPassword, name, role } = body;
 
     // Validation
     if (!email || !password || !name || !role) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      return NextResponse.json(
+        { error: "Passwords do not match" },
         { status: 400 }
       );
     }

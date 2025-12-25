@@ -92,11 +92,6 @@ export default function BookingCard({ deskId, pricePerDay, currency, availableDa
   const total = subtotal + platformFee;
 
   function handleReserve() {
-    if (selectedDates.size === 0) {
-      setError('Please select at least one date');
-      return;
-    }
-
     // Convert selected dates to sorted array and navigate to review page
     const sortedDates = Array.from(selectedDates).sort();
     const datesParam = sortedDates.join(',');
