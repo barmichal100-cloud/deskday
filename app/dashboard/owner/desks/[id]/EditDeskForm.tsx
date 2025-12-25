@@ -302,7 +302,7 @@ export default function EditDeskForm({ desk }: any) {
         label="Location"
         placeholder="City, Country"
         error={fieldErrors.location}
-        variant="home"
+        variant="form"
       />
 
       <div>

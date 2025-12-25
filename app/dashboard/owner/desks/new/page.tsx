@@ -245,7 +245,7 @@ export default function NewDeskPage() {
             label="Location"
             placeholder="City, Country"
             error={fieldErrors.location}
-            variant="home"
+            variant="form"
             required
           />
 
