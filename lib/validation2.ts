@@ -40,6 +40,24 @@ export interface NewDeskData {
   currency: string;
 }
 
+async function verifyLocationWithMapbox(city: string, country: string) {
+  const key = process.env.MAPBOX_API_KEY;
+  if (!key) return { ok: true, info: "no-geocode" };
+
+  try {
+    const q = encodeURIComponent(`${city}, ${country}`);
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${q}.json?access_token=${key}&limit=1&types=place,country`;
+    const res = await fetch(url);
+    if (!res.ok) return { ok: false, info: "geocode-failed" };
+    const json = await res.json();
+    const features = json?.features;
+    if (!features || features.length === 0) return { ok: false, info: "not-found" };
+    return { ok: true, info: "found", feature: features[0] };
+  } catch (e) {
+    return { ok: false, info: "error" };
+  }
+}
+
 async function verifyAddressWithMapbox(address: string, city: string, country: string) {
   const key = process.env.MAPBOX_API_KEY;
   if (!key) return { ok: true, info: "no-geocode" };
@@ -138,6 +156,12 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
   }
 
   const priceMinor = (parsed as any)._validatedPrice ?? parsePriceToMinorUnits(parsed.pricePerDay);
+
+  // Verify location via Mapbox if API key present
+  const locationGeo = await verifyLocationWithMapbox(parsed.city, parsed.country);
+  if (!locationGeo.ok && process.env.MAPBOX_API_KEY) {
+    return { ok: false, error: "Location verification failed", errors: { location: "Please select a valid location from the suggestions." } } as const;
+  }
 
   // Optional: verify address via Mapbox if API key present
   const geo = await verifyAddressWithMapbox(parsed.address, parsed.city, parsed.country);
