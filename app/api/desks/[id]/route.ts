@@ -121,7 +121,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     // Collect all validation errors including images
     if (!result.ok) {
-      const errors: Record<string, string> = "errors" in result && result.errors ? { ...result.errors } : {};
+      const errors = "errors" in result && result.errors ? { ...result.errors as Record<string, string> } : {} as Record<string, string>;
 
       // Add images error if no photos will remain after update
       if (totalImagesAfterUpdate === 0) {
