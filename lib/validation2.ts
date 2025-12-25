@@ -5,7 +5,7 @@ const NewDeskSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters").max(200),
   city: z.string().min(1, "Location must be selected from the suggestion list"),
   country: z.string().min(1, "Location must be selected from the suggestion list"),
-  address: z.string().min(10, "Address must be at least 10 characters"),
+  address: z.string().min(20, "Address must be at least 20 characters"),
   // description optional but if provided must look like a sentence
   description: z
     .string()
