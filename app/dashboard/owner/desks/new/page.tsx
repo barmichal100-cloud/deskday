@@ -236,7 +236,10 @@ export default function NewDeskPage() {
     setIsSubmitting(true);
     setFieldErrors({});
 
-    // Require location to be selected from suggestions
+    // Collect all validation errors before stopping
+    const errors: Record<string, string> = {};
+
+    // Validate location
     const selected = locationSuggestions.find(
       (s) => {
         const countryObj = s.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'));
@@ -244,35 +247,44 @@ export default function NewDeskPage() {
       }
     );
     if (!location || !selected) {
-      setFieldErrors((prev) => ({ ...prev, location: "Please select a location from the suggestions." }));
-      setIsSubmitting(false);
-      return;
+      errors.location = "Please select a location from the suggestions.";
     }
 
-    const city = selected.text;
-    const country = selected.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || "";
-
-    const priceNumber = parseFloat(pricePerDayInput || "0");
-    const pricePerDay = Math.round((isNaN(priceNumber) ? 0 : priceNumber) * 100);
-
-    // validate images client-side too
+    // Validate images
     if (imageErrors) {
-      setFieldErrors((prev) => ({ ...prev, images: String(imageErrors) }));
+      errors.images = String(imageErrors);
+    } else if (images.length === 0) {
+      errors.images = "At least 1 image is required.";
+    } else if (images.length > 6) {
+      errors.images = "Maximum 6 images allowed.";
+    }
+
+    // Validate title (client-side basic check)
+    if (!title || title.trim().length < 10) {
+      errors.title = "Title must be at least 10 characters.";
+    }
+
+    // Validate address
+    if (!address || address.trim().length < 3) {
+      errors.address = "Address is required.";
+    }
+
+    // Validate price
+    const priceNumber = parseFloat(pricePerDayInput || "0");
+    if (isNaN(priceNumber) || priceNumber <= 0) {
+      errors.pricePerDay = "Price must be a valid number greater than 0.";
+    }
+
+    // If there are any validation errors, display them all and stop
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       setIsSubmitting(false);
       return;
     }
 
-    if (images.length === 0) {
-      setFieldErrors((prev) => ({ ...prev, images: "At least 1 image is required." }));
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (images.length > 6) {
-      setFieldErrors((prev) => ({ ...prev, images: "Maximum 6 images allowed." }));
-      setIsSubmitting(false);
-      return;
-    }
+    const city = selected!.text;
+    const country = selected!.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || "";
+    const pricePerDay = Math.round(priceNumber * 100);
 
     const body = {
       title,
