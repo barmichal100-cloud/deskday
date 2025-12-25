@@ -63,9 +63,8 @@ export default async function HomePage() {
             </Link>
 
             {/* Right side navigation */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <LanguageCurrencySelectorWrapper />
-              <div className="h-6 w-px bg-gray-300"></div>
               <UserMenuWrapper />
             </div>
           </div>
