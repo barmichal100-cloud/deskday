@@ -461,7 +461,6 @@ export default function NewDeskPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               type="text"
-              required
               placeholder="Cozy desk in quiet office"
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
             />
@@ -491,7 +490,6 @@ export default function NewDeskPage() {
                 setTimeout(() => setShowLocationDropdown(false), 150);
               }}
               type="text"
-              required
               placeholder="City, Country"
               autoComplete="off"
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
@@ -529,7 +527,6 @@ export default function NewDeskPage() {
                 if (mapboxKey) scheduleFetch(e.target.value, "address,place,poi", setAddressSuggestions);
               }}
               type="text"
-              required
               placeholder="Dizengoff 100"
               autoComplete="off"
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
@@ -683,7 +680,6 @@ export default function NewDeskPage() {
                 type="number"
                 min={1}
                 step="0.01"
-                required
                 placeholder="200"
                 className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
               />
