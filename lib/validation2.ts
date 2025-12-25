@@ -76,6 +76,13 @@ export function validateAmenities(amenities: any): { ok: boolean; sanitized?: an
     sanitized.mouse = amenities.mouse;
   }
 
+  if ('chair' in amenities) {
+    if (typeof amenities.chair !== 'boolean') {
+      return { ok: false, error: 'Chair must be true or false' };
+    }
+    sanitized.chair = amenities.chair;
+  }
+
   if ('screens' in amenities) {
     const screens = Number(amenities.screens);
     if (!Number.isInteger(screens) || screens < 0 || screens > 10) {
@@ -85,7 +92,7 @@ export function validateAmenities(amenities: any): { ok: boolean; sanitized?: an
   }
 
   // Reject any unknown fields
-  const allowedKeys = ['wifi', 'hdmi', 'keyboard', 'mouse', 'screens'];
+  const allowedKeys = ['wifi', 'hdmi', 'keyboard', 'mouse', 'chair', 'screens'];
   for (const key of Object.keys(amenities)) {
     if (!allowedKeys.includes(key)) {
       return { ok: false, error: `Unknown amenity field: ${key}` };
