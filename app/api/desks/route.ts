@@ -105,6 +105,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Build desk create input and attach any uploaded files as DeskPhoto entries
+    const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: (f as any).thumbnailSmall }));
+    console.log('Photos to create:', photosToCreate.length, 'photos');
+
     const result = await validateNewDeskInput({
       title: body.title,
       city: body.city,
@@ -115,23 +119,28 @@ export async function POST(req: Request) {
       currency: body.currency,
     });
 
+    // Collect all validation errors including images
     if (!result.ok) {
-      // If validator returned field errors, include them in response
-      const payload: Record<string, unknown> = { error: result.error ?? "Validation failed" };
-      if ("errors" in result && result.errors) payload.errors = result.errors;
-      return NextResponse.json(payload, { status: 400 });
+      const errors = "errors" in result && result.errors ? { ...result.errors } : {};
+
+      // Add images error if no photos uploaded
+      if (photosToCreate.length === 0) {
+        errors.images = "At least 1 image is required.";
+      }
+
+      // Return all errors together
+      return NextResponse.json({
+        error: result.error ?? "Validation failed",
+        errors
+      }, { status: 400 });
     }
 
-    const data = result.data;
-
-    // Build desk create input and attach any uploaded files as DeskPhoto entries
-    const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: (f as any).thumbnailSmall }));
-    console.log('Photos to create:', photosToCreate.length, 'photos');
-
-    // Require at least 1 image
+    // Also check images even if other validation passed
     if (photosToCreate.length === 0) {
       return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
     }
+
+    const data = result.data;
 
     // Parse available dates from body (array of ISO date strings)
     const availableDates: string[] = Array.isArray(body.availableDates) ? body.availableDates : [];

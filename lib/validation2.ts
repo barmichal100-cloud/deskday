@@ -59,20 +59,30 @@ async function verifyAddressWithMapbox(address: string, city: string, country: s
 }
 
 export async function validateNewDeskInput(payload: Record<string, unknown>) {
+  // Collect ALL errors before returning
+  const fieldErrors: Record<string, string> = {};
+
   // Parse with Zod first
   const parseResult = NewDeskSchema.safeParse(payload);
   if (!parseResult.success) {
     // Build a map of field errors from Zod
-    const errors: Record<string, string> = {};
     // ZodError exposes `issues` (array of ZodIssue)
     for (const issue of parseResult.error.issues) {
       const path = issue.path?.[0] ?? "_";
-      errors[String(path)] = issue.message;
+      fieldErrors[String(path)] = issue.message;
     }
-    return { ok: false, error: "Validation failed", errors } as const;
   }
 
-  const parsed = parseResult.data as {
+  // Continue validating even if Zod failed, to collect all errors
+  const parsed = parseResult.success ? parseResult.data : {
+    title: String(payload.title ?? ""),
+    city: String(payload.city ?? ""),
+    country: String(payload.country ?? ""),
+    address: String(payload.address ?? ""),
+    description: String(payload.description ?? ""),
+    pricePerDay: payload.pricePerDay ?? 0,
+    currency: String(payload.currency ?? "ILS"),
+  } as {
     title: string;
     city: string;
     country: string;
@@ -82,16 +92,14 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
     currency: string;
   };
 
-  const fieldErrors: Record<string, string> = {};
-
-  // Additional validations
-  if (parsed.title.trim().length < 10) {
+  // Additional validations - add to errors but don't override Zod errors
+  if (!fieldErrors.title && parsed.title.trim().length < 10) {
     fieldErrors.title = "Title must be at least 10 characters";
   }
 
   // Description: if provided, require it to look like a sentence (end punctuation + min word count)
   const desc = parsed.description?.trim() ?? "";
-  if (desc) {
+  if (desc && !fieldErrors.description) {
     const words = desc.split(/\s+/).filter(Boolean);
     const endsWithSentencePunct = /[.!?]$/.test(desc);
     if (words.length < 6 || !endsWithSentencePunct) {
@@ -100,18 +108,27 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
   }
 
   // Price
-  const priceMinor = parsePriceToMinorUnits(parsed.pricePerDay);
-  if (priceMinor === null) fieldErrors.pricePerDay = "Invalid pricePerDay";
+  if (!fieldErrors.pricePerDay) {
+    const priceMinor = parsePriceToMinorUnits(parsed.pricePerDay);
+    if (priceMinor === null) {
+      fieldErrors.pricePerDay = "Price must be a valid number greater than 0.";
+    } else {
+      // Store the valid price for later use
+      (parsed as any)._validatedPrice = priceMinor;
+    }
+  }
 
   // Currency allow-list
   const currencyRaw = typeof parsed.currency === "string" ? parsed.currency.trim().toUpperCase() : "ILS";
   const allowed = ["ILS", "USD", "EUR"];
   const currency = allowed.includes(currencyRaw) ? currencyRaw : "ILS";
 
-  // If any field errors so far, return them
+  // If any field errors so far, return them ALL
   if (Object.keys(fieldErrors).length > 0) {
     return { ok: false, error: "Validation failed", errors: fieldErrors } as const;
   }
+
+  const priceMinor = (parsed as any)._validatedPrice ?? parsePriceToMinorUnits(parsed.pricePerDay);
 
   // Optional: verify address via Mapbox if API key present
   const geo = await verifyAddressWithMapbox(parsed.address, parsed.city, parsed.country);
