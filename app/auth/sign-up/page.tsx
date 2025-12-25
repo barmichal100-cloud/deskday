@@ -10,6 +10,8 @@ function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+  const [roleSelection, setRoleSelection] = useState<string>("");
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   useEffect(() => {
     const redirect = searchParams.get('redirect');
@@ -28,7 +30,12 @@ function SignUpForm() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
-    const roleSelection = formData.get("role") as string;
+
+    if (!roleSelection) {
+      setError("Please select what you want to do");
+      setIsLoading(false);
+      return;
+    }
 
     // Map the selection to UserRole
     let role = "RENTER";
@@ -149,18 +156,47 @@ function SignUpForm() {
                   required
                 />
               </div>
-              <div>
-                <select
-                  name="role"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 bg-white"
-                  autoComplete="off"
-                  required
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                  onBlur={() => setTimeout(() => setShowRoleDropdown(false), 150)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between bg-white"
                 >
-                  <option value="">I want to...</option>
-                  <option value="owner">List my desks</option>
-                  <option value="renter">Book desks</option>
-                  <option value="both">Both list and book desks</option>
-                </select>
+                  <span className={roleSelection ? "text-gray-900" : "text-gray-500"}>
+                    {roleSelection === "owner" ? "List my desks" :
+                     roleSelection === "renter" ? "Book desks" :
+                     roleSelection === "both" ? "Both list and book desks" :
+                     "I want to..."}
+                  </span>
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {showRoleDropdown && (
+                  <ul className="absolute z-10 mt-1 w-full rounded-lg bg-white border border-gray-200 shadow-lg overflow-hidden">
+                    {[
+                      { value: "owner", label: "List my desks" },
+                      { value: "renter", label: "Book desks" },
+                      { value: "both", label: "Both list and book desks" }
+                    ].map((option) => (
+                      <li
+                        key={option.value}
+                        className={`px-4 py-2.5 text-sm cursor-pointer transition ${
+                          roleSelection === option.value
+                            ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white font-medium'
+                            : 'text-gray-900 hover:bg-pink-50 hover:text-pink-600'
+                        }`}
+                        onMouseDown={() => {
+                          setRoleSelection(option.value);
+                          setShowRoleDropdown(false);
+                        }}
+                      >
+                        {option.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <button
                 type="submit"
@@ -191,26 +227,6 @@ function SignUpForm() {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 Continue with Google
-              </button>
-
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition"
-              >
-                <svg className="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-                Continue with Facebook
-              </button>
-
-              <button
-                type="button"
-                className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                </svg>
-                Continue with Apple
               </button>
             </div>
 
