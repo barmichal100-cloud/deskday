@@ -25,6 +25,7 @@ type MapboxRaw = {
 type ScoredFeature = MapboxFeature & { score: number };
 
 export default function EditDeskForm({ desk }: any) {
+  console.log('EditDeskForm loaded for desk:', desk.id);
   const [title, setTitle] = useState(desk.title_en ?? '');
   const [description, setDescription] = useState(desk.description_en ?? '');
   const [address, setAddress] = useState(desk.address ?? '');
@@ -404,6 +405,7 @@ export default function EditDeskForm({ desk }: any) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log('=== Form submission started ===');
     setFormError(null);
     setSuccessMessage(null);
     setFieldErrors({});
@@ -420,6 +422,8 @@ export default function EditDeskForm({ desk }: any) {
 
       const city = selected?.text || location.split(',')[0]?.trim() || "";
       const country = selected?.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || "";
+
+      console.log('Form submission data:', { title, description, address, city, country, location });
 
       const payload = {
         title,
@@ -441,21 +445,42 @@ export default function EditDeskForm({ desk }: any) {
         },
       };
 
+      console.log('Sending payload:', payload);
       let res: Response;
       if (newFiles.length > 0 || payload.removePhotoIds.length > 0) {
         const fd = new FormData();
         fd.append('payload', JSON.stringify(payload));
         newFiles.forEach((f) => fd.append('images', f));
+        console.log('Sending as FormData with', newFiles.length, 'new files');
         res = await fetch(`/api/desks/${desk.id}`, { method: 'PATCH', body: fd });
       } else {
+        console.log('Sending as JSON');
         res = await fetch(`/api/desks/${desk.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       }
+      console.log('Response status:', res.status);
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch((err) => {
+        console.error('Failed to parse response JSON:', err);
+        return {};
+      });
+
       if (!res.ok) {
-        if (data && data.errors) setFieldErrors(data.errors);
+        console.error('Update failed:', { status: res.status, data });
+        console.error('Field errors:', data?.errors);
+        console.error('General error:', data?.error);
+
+        // Show a temporary alert with the full error for debugging
+        const debugInfo = JSON.stringify(data, null, 2);
+        alert(`Update failed (${res.status}):\n\n${debugInfo}`);
+
+        if (data && data.errors) {
+          setFieldErrors(data.errors);
+          console.log('Setting field errors:', data.errors);
+        }
         else setFormError(data?.error || 'Failed to update desk');
         setIsSubmitting(false);
+        // Scroll to top to show errors
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
