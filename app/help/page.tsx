@@ -132,7 +132,7 @@ export default function HelpCentrePage() {
               <Link href="#" className="group">
                 <div className="aspect-[4/3] rounded-lg overflow-hidden mb-3">
                   <img
-                    src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop"
                     alt="Getting paid as a desk owner"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />

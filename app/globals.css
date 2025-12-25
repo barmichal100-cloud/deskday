@@ -3,7 +3,7 @@
 /* Design tokens for Tailwind v4 */
 @theme inline {
   /* Colors */
-  --color-background: #FFF7ED;           /* soft warm peach */
+  --color-background: #FFFFFF;           /* white */
   --color-foreground: #1F2933;           /* dark slate text */
   --color-primary: #D9730D;              /* warm orange */
   --color-primary-foreground: #FFFFFF;
