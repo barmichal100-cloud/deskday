@@ -126,6 +126,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     // create new DeskPhoto entries for uploadedFiles
     const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: f.thumbnailSmall }));
 
+    // Validate that there will be at least 1 image after the update
+    const currentPhotos = await prisma.deskPhoto.findMany({ where: { deskId: desk.id } });
+    const totalImagesAfterUpdate = currentPhotos.filter(p => !removeIds.includes(p.id)).length + photosToCreate.length;
+    if (totalImagesAfterUpdate === 0) {
+      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
+    }
+
     // Parse available dates from body (array of ISO date strings)
     const availableDates: string[] = Array.isArray(body.availableDates) ? body.availableDates : [];
     console.log('Available dates from body:', availableDates.length, 'dates');

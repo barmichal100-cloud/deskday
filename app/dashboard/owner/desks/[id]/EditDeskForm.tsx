@@ -408,17 +408,56 @@ export default function EditDeskForm({ desk }: any) {
     setFieldErrors({});
     setIsSubmitting(true);
 
-    try {
-      // Parse location field to get city and country
-      const selected = locationSuggestions.find(
-        (s) => {
-          const countryObj = s.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'));
-          return `${s.text}, ${countryObj?.text ?? ''}` === location;
-        }
-      );
+    // Collect all validation errors before stopping
+    const errors: Record<string, string> = {};
 
-      const city = selected?.text || location.split(',')[0]?.trim() || desk.city;
-      const country = selected?.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || desk.country;
+    // Validate location
+    const selected = locationSuggestions.find(
+      (s) => {
+        const countryObj = s.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'));
+        return `${s.text}, ${countryObj?.text ?? ''}` === location;
+      }
+    );
+    if (!location || !selected) {
+      errors.location = "Please select a location from the suggestions.";
+    }
+
+    // Validate images - count both existing photos (not marked for removal) and new files
+    const totalImages = existingPhotos.filter(p => !p.markedForRemove).length + newFiles.length;
+    if (imageErrors) {
+      errors.images = String(imageErrors);
+    } else if (totalImages === 0) {
+      errors.images = "At least 1 image is required.";
+    } else if (totalImages > 6) {
+      errors.images = "Maximum 6 images allowed.";
+    }
+
+    // Validate title (client-side basic check)
+    if (!title || title.trim().length < 10) {
+      errors.title = "Title must be at least 10 characters.";
+    }
+
+    // Validate address
+    if (!address || address.trim().length < 3) {
+      errors.address = "Address is required.";
+    }
+
+    // Validate price
+    const priceNumber = parseFloat(price || "0");
+    if (isNaN(priceNumber) || priceNumber <= 0) {
+      errors.pricePerDay = "Price must be a valid number greater than 0.";
+    }
+
+    // If there are any validation errors, display them all and stop
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const city = selected!.text || location.split(',')[0]?.trim() || desk.city;
+      const country = selected!.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || desk.country;
 
       const payload = {
         title,
@@ -499,7 +538,7 @@ export default function EditDeskForm({ desk }: any) {
 
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">Title</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
         {fieldErrors.title && <div className="mt-1 text-xs text-red-600">{fieldErrors.title}</div>}
       </div>
 
@@ -526,7 +565,6 @@ export default function EditDeskForm({ desk }: any) {
             setTimeout(() => setShowLocationDropdown(false), 150);
           }}
           type="text"
-          required
           placeholder="City, Country"
           autoComplete="off"
           className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
@@ -556,18 +594,20 @@ export default function EditDeskForm({ desk }: any) {
 
       <div>
         <label className="block text-sm font-semibold text-gray-900 mb-2">Address</label>
-        <input value={address} onChange={(e) => setAddress(e.target.value)} required placeholder="Dizengoff 100" className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+        <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Dizengoff 100" className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+        {fieldErrors.address && <div className="mt-1 text-xs text-red-600">{fieldErrors.address}</div>}
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">Description (optional)</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 items-end">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">Price (per day)</label>
           <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" min={0} step="0.01" className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+          {fieldErrors.pricePerDay && <div className="mt-1 text-xs text-red-600">{fieldErrors.pricePerDay}</div>}
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">Currency</label>
@@ -626,7 +666,7 @@ export default function EditDeskForm({ desk }: any) {
       )}
 
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">Add new photos</label>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">Photos</label>
         <div className="flex items-center gap-3 mb-2">
           <input
             aria-label="Upload photos"
