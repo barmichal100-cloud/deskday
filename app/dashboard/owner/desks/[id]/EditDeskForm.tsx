@@ -417,8 +417,8 @@ export default function EditDeskForm({ desk }: any) {
         }
       );
 
-      const city = selected?.text || location.split(',')[0]?.trim() || desk.city;
-      const country = selected?.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || desk.country;
+      const city = selected?.text || location.split(',')[0]?.trim() || "";
+      const country = selected?.context?.find((c: MapboxContextItem) => c.id.startsWith('country.'))?.text || location.split(',')[1]?.trim() || "";
 
       const payload = {
         title,
