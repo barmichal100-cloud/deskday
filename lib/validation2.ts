@@ -3,9 +3,9 @@ import { z } from "zod";
 const NewDeskSchema = z.object({
   // stronger rules: title at least 10 chars
   title: z.string().min(10, "Title must be at least 10 characters").max(200),
-  city: z.string().min(1, "City is required"),
-  country: z.string().min(1, "Country is required"),
-  address: z.string().min(3, "Address is required"),
+  city: z.string().min(1, "Location must be selected from the suggestion list"),
+  country: z.string().min(1, "Location must be selected from the suggestion list"),
+  address: z.string().min(10, "Address must be at least 10 characters"),
   // description optional but if provided must look like a sentence
   description: z
     .string()
@@ -92,7 +92,7 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
       // Combine city and country errors into a single "location" error
       if (pathStr === "city" || pathStr === "country") {
         if (!fieldErrors.location) {
-          fieldErrors.location = "Location is required";
+          fieldErrors.location = "Location must be selected from the suggestion list";
         }
       } else {
         fieldErrors[pathStr] = issue.message;
