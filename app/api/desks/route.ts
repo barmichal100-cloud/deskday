@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 
     // Collect all validation errors including images
     if (!result.ok) {
-      const errors: Record<string, string> = "errors" in result && result.errors ? { ...result.errors } : {};
+      const errors = "errors" in result && result.errors ? { ...result.errors as Record<string, string> } : {} as Record<string, string>;
 
       // Add images error if no photos uploaded
       if (photosToCreate.length === 0) {
