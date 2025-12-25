@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { validateName } from "@/lib/security-validation";
 
 export async function PATCH(request: Request) {
   try {
@@ -16,6 +17,19 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { name, preferredLocale } = body;
 
+    // Validate name if provided
+    let sanitizedName = null;
+    if (name) {
+      const nameValidation = validateName(name);
+      if (!nameValidation.ok) {
+        return NextResponse.json(
+          { error: nameValidation.error },
+          { status: 400 }
+        );
+      }
+      sanitizedName = nameValidation.sanitized;
+    }
+
     // Validate preferredLocale
     if (preferredLocale && !["EN", "HE"].includes(preferredLocale)) {
       return NextResponse.json(
@@ -28,7 +42,7 @@ export async function PATCH(request: Request) {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        name: name || null,
+        name: sanitizedName,
         preferredLocale: preferredLocale || "EN",
       },
       select: {

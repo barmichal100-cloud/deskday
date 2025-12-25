@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { createSession } from "@/lib/auth";
 import { UserRole } from "@prisma/client";
+import { validateName } from "@/lib/security-validation";
 
 export async function POST(req: Request) {
   try {
@@ -13,6 +14,15 @@ export async function POST(req: Request) {
     if (!email || !password || !name || !role) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate name
+    const nameValidation = validateName(name);
+    if (!nameValidation.ok) {
+      return NextResponse.json(
+        { error: nameValidation.error },
         { status: 400 }
       );
     }
@@ -98,12 +108,12 @@ export async function POST(req: Request) {
     // Hash password with bcrypt (salt rounds: 12 for high security)
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Create user
+    // Create user with sanitized name
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
         passwordHash,
-        name,
+        name: nameValidation.sanitized,
         role,
       },
       select: {

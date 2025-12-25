@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUserId } from '@/lib/auth';
+import { validateDeskId, validateDateArray } from '@/lib/security-validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,9 +17,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { deskId, dates } = body;
 
-    if (!deskId || !dates || !Array.isArray(dates) || dates.length === 0) {
+    // Validate desk ID
+    const deskIdValidation = validateDeskId(deskId);
+    if (!deskIdValidation.ok) {
       return NextResponse.json(
-        { error: 'Missing required fields: deskId and dates array' },
+        { error: deskIdValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Validate dates array
+    const datesValidation = validateDateArray(dates);
+    if (!datesValidation.ok) {
+      return NextResponse.json(
+        { error: datesValidation.error },
         { status: 400 }
       );
     }
