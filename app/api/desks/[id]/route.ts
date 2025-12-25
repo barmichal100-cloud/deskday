@@ -98,6 +98,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!desk) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     if (desk.ownerId !== ownerId) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+    // Optionally remove photos specified by client
+    const removeIds: string[] = Array.isArray(body.removePhotoIds) ? body.removePhotoIds : [];
+
+    // create new DeskPhoto entries for uploadedFiles
+    const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: f.thumbnailSmall }));
+
+    // Validate that there will be at least 1 image after the update
+    const currentPhotos = await prisma.deskPhoto.findMany({ where: { deskId: desk.id } });
+    const totalImagesAfterUpdate = currentPhotos.filter(p => !removeIds.includes(p.id)).length + photosToCreate.length;
+
     // Validate payload (reuse existing validator)
     const result = await validateNewDeskInput({
       title: body.title,
@@ -109,28 +119,32 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       currency: body.currency,
     });
 
+    // Collect all validation errors including images
     if (!result.ok) {
-      const payload: Record<string, any> = { error: result.error ?? 'Validation failed' };
-      if ('errors' in result && result.errors) payload.errors = result.errors;
-      return NextResponse.json(payload, { status: 400 });
+      const errors: Record<string, string> = "errors" in result && result.errors ? { ...result.errors } : {};
+
+      // Add images error if no photos will remain after update
+      if (totalImagesAfterUpdate === 0) {
+        errors.images = "At least 1 image is required.";
+      }
+
+      // Return all errors together
+      return NextResponse.json({
+        error: result.error ?? "Validation failed",
+        errors
+      }, { status: 400 });
+    }
+
+    // Also check images even if other validation passed
+    if (totalImagesAfterUpdate === 0) {
+      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
     }
 
     const data = result.data;
 
-    // Optionally remove photos specified by client
-    const removeIds: string[] = Array.isArray(body.removePhotoIds) ? body.removePhotoIds : [];
+    // Delete photos after validation passes
     if (removeIds.length > 0) {
       await prisma.deskPhoto.deleteMany({ where: { id: { in: removeIds }, deskId: desk.id } });
-    }
-
-    // create new DeskPhoto entries for uploadedFiles
-    const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: f.thumbnailSmall }));
-
-    // Validate that there will be at least 1 image after the update
-    const currentPhotos = await prisma.deskPhoto.findMany({ where: { deskId: desk.id } });
-    const totalImagesAfterUpdate = currentPhotos.filter(p => !removeIds.includes(p.id)).length + photosToCreate.length;
-    if (totalImagesAfterUpdate === 0) {
-      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
     }
 
     // Parse available dates from body (array of ISO date strings)
