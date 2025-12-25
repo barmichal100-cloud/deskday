@@ -11,7 +11,7 @@ export default function HowItWorksPage() {
           </h1>
           <p className="text-gray-600 max-w-2xl mb-12">
             Deskday connects businesses that have spare desks with people who need a
-            quiet place to work for a day or a few days in a row.
+            quiet place to work for a day or a few days.
           </p>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -19,7 +19,7 @@ export default function HowItWorksPage() {
               <p className="text-xs font-semibold text-rose-500 mb-3 tracking-wide">
                 FOR DESK OWNERS
               </p>
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">List your spare desk</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">List your spare desks</h2>
               <p className="text-sm text-gray-600 leading-relaxed">
                 Add photos, price per day, and choose which dates are available.
                 You stay in control of your space.
