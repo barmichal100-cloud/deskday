@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Header from "@/app/Header";
+import HeaderClient from "@/app/HeaderClient";
 import { useState } from "react";
 
 export default function HelpCentrePage() {
@@ -9,7 +9,7 @@ export default function HelpCentrePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header backHref="/" backText="Home" hideRoleSwitch={true} hideDashboard={true} />
+      <HeaderClient backHref="/" backText="Home" hideRoleSwitch={true} hideDashboard={true} />
 
       {/* Hero Section */}
       <div className="px-6 lg:px-20 py-16 text-center">
