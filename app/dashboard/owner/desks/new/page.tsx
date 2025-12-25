@@ -641,7 +641,6 @@ export default function NewDeskPage() {
                 value={pricePerDayInput}
                 onChange={(e) => setPricePerDayInput(e.target.value)}
                 type="number"
-                min={1}
                 step="0.01"
                 placeholder="200"
                 className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"

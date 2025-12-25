@@ -138,7 +138,7 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
   if (!fieldErrors.pricePerDay) {
     const priceMinor = parsePriceToMinorUnits(parsed.pricePerDay);
     if (priceMinor === null) {
-      fieldErrors.pricePerDay = "Price must be a valid number greater than 0.";
+      fieldErrors.pricePerDay = "Price must be a valid number greater than 0";
     } else {
       // Store the valid price for later use
       (parsed as any)._validatedPrice = priceMinor;

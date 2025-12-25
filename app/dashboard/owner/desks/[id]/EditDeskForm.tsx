@@ -567,7 +567,7 @@ export default function EditDeskForm({ desk }: any) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">Price (per day)</label>
-          <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" min={0} step="0.01" className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
+          <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" step="0.01" className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" />
           {fieldErrors.pricePerDay && <div className="mt-1 text-xs text-red-600">{fieldErrors.pricePerDay}</div>}
         </div>
         <div>

@@ -125,7 +125,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
       // Add images error if no photos will remain after update
       if (totalImagesAfterUpdate === 0) {
-        errors.images = "At least 1 image is required.";
+        errors.images = "At least 1 image is required";
       }
 
       // Return all errors together
@@ -137,7 +137,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     // Also check images even if other validation passed
     if (totalImagesAfterUpdate === 0) {
-      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
+      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required" } }, { status: 400 });
     }
 
     const data = result.data;

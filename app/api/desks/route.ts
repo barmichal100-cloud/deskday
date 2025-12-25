@@ -125,7 +125,7 @@ export async function POST(req: Request) {
 
       // Add images error if no photos uploaded
       if (photosToCreate.length === 0) {
-        errors.images = "At least 1 image is required.";
+        errors.images = "At least 1 image is required";
       }
 
       // Return all errors together
@@ -137,7 +137,7 @@ export async function POST(req: Request) {
 
     // Also check images even if other validation passed
     if (photosToCreate.length === 0) {
-      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
+      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required" } }, { status: 400 });
     }
 
     const data = result.data;
