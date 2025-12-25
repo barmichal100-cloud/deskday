@@ -68,23 +68,6 @@ input[type="date"]::-moz-clear-button {
   display: none;
 }
 
-/* Select dropdown styling */
-select option {
-  background-color: white;
-  color: #1f2937;
-  padding: 8px 12px;
-}
-
-select option:checked {
-  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-  color: white;
-}
-
-select option:hover {
-  background-color: #fce7f3;
-  color: #ec4899;
-}
-
 /* Custom DatePicker Styling */
 .react-datepicker-wrapper {
   width: 100%;

@@ -40,6 +40,7 @@ export default function NewDeskPage() {
   const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const [pricePerDayInput, setPricePerDayInput] = useState("");
   const [currency, setCurrency] = useState("ILS");
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
 
   // Desk properties / amenities
@@ -670,18 +671,39 @@ export default function NewDeskPage() {
               />
               {fieldErrors.pricePerDay && <div className="mt-1 text-xs text-red-600">{fieldErrors.pricePerDay}</div>}
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-sm font-semibold text-gray-900 mb-2">Currency</label>
-              <select
-                name="currency"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
+              <button
+                type="button"
+                onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
+                onBlur={() => setTimeout(() => setShowCurrencyDropdown(false), 150)}
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between"
               >
-                <option value="ILS">ILS</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
+                <span>{currency}</span>
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showCurrencyDropdown && (
+                <ul className="absolute z-10 mt-1 w-full rounded-lg bg-white border border-gray-200 shadow-lg overflow-hidden">
+                  {['ILS', 'USD', 'EUR'].map((curr) => (
+                    <li
+                      key={curr}
+                      className={`px-4 py-2.5 text-sm cursor-pointer transition ${
+                        currency === curr
+                          ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white font-medium'
+                          : 'text-gray-900 hover:bg-pink-50 hover:text-pink-600'
+                      }`}
+                      onMouseDown={() => {
+                        setCurrency(curr);
+                        setShowCurrencyDropdown(false);
+                      }}
+                    >
+                      {curr}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 
