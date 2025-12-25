@@ -69,7 +69,16 @@ export async function validateNewDeskInput(payload: Record<string, unknown>) {
     // ZodError exposes `issues` (array of ZodIssue)
     for (const issue of parseResult.error.issues) {
       const path = issue.path?.[0] ?? "_";
-      fieldErrors[String(path)] = issue.message;
+      const pathStr = String(path);
+
+      // Combine city and country errors into a single "location" error
+      if (pathStr === "city" || pathStr === "country") {
+        if (!fieldErrors.location) {
+          fieldErrors.location = "Location is required";
+        }
+      } else {
+        fieldErrors[pathStr] = issue.message;
+      }
     }
   }
 
