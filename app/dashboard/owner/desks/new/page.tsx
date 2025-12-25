@@ -547,9 +547,11 @@ export default function NewDeskPage() {
                 ))}
               </ul>
             )}
+            {fieldErrors.address && <div className="mt-1 text-xs text-red-600">{fieldErrors.address}</div>}
+          </div>
 
-            <div className="mt-5">
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Photos</label>
+          <div>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Photos</label>
               <div className="flex items-center gap-3 mb-2">
                 <input
                   aria-label="Upload photos"
@@ -582,7 +584,6 @@ export default function NewDeskPage() {
                 <div className="text-xs text-gray-600">Up to {MAX_IMAGES} images, JPEG/PNG/WEBP, ≤5MB each</div>
               </div>
               {imageErrors && <div className="text-xs text-red-600 mb-2">{imageErrors}</div>}
-              {fieldErrors.images && <div className="text-xs text-red-600 mb-2">{fieldErrors.images}</div>}
               {imagePreviews.length > 0 && (
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   {imagePreviews.map((src, idx) => (
@@ -653,8 +654,7 @@ export default function NewDeskPage() {
                   </div>
                 </div>
               )}
-            </div>
-            {fieldErrors.address && <div className="mt-1 text-xs text-red-600">{fieldErrors.address}</div>}
+              {fieldErrors.images && <div className="text-xs text-red-600 mt-2">{fieldErrors.images}</div>}
           </div>
 
           <div>
@@ -670,7 +670,7 @@ export default function NewDeskPage() {
             {fieldErrors.description && <div className="mt-1 text-xs text-red-600">{fieldErrors.description}</div>}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 items-end">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">Price per day</label>
               <input
