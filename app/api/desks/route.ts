@@ -128,6 +128,11 @@ export async function POST(req: Request) {
     const photosToCreate = uploadedFiles.map((f, idx) => ({ url: f.url, order: idx, thumbnailUrl: (f as any).thumbnailSmall }));
     console.log('Photos to create:', photosToCreate.length, 'photos');
 
+    // Require at least 1 image
+    if (photosToCreate.length === 0) {
+      return NextResponse.json({ error: "Validation failed", errors: { images: "At least 1 image is required." } }, { status: 400 });
+    }
+
     // Parse available dates from body (array of ISO date strings)
     const availableDates: string[] = Array.isArray(body.availableDates) ? body.availableDates : [];
     console.log('Available dates from body:', availableDates.length, 'dates');

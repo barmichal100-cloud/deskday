@@ -262,6 +262,12 @@ export default function NewDeskPage() {
       return;
     }
 
+    if (images.length === 0) {
+      setFieldErrors((prev) => ({ ...prev, images: "At least 1 image is required." }));
+      setIsSubmitting(false);
+      return;
+    }
+
     if (images.length > 6) {
       setFieldErrors((prev) => ({ ...prev, images: "Maximum 6 images allowed." }));
       setIsSubmitting(false);
@@ -534,7 +540,7 @@ export default function NewDeskPage() {
             )}
 
             <div className="mt-5">
-              <label className="block text-sm font-semibold text-gray-900 mb-2">Photos (optional)</label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Photos</label>
               <div className="flex items-center gap-3 mb-2">
                 <input
                   aria-label="Upload photos"
@@ -643,7 +649,7 @@ export default function NewDeskPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
+            <label className="block text-sm font-semibold text-gray-900 mb-2">Description (optional)</label>
             <textarea
               name="description"
               value={description}
