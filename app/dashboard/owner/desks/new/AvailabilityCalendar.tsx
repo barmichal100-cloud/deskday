@@ -124,7 +124,7 @@ export default function AvailabilityCalendar({ selectedDates, onChange }: Props)
           <button
             type="button"
             onClick={clearAllDates}
-            className="text-sm text-red-600 hover:text-red-700 font-medium text-left"
+            className="text-sm text-gray-500 hover:text-gray-900 hover:underline text-left transition"
           >
             Clear all dates
           </button>
