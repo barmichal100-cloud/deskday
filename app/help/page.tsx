@@ -49,6 +49,30 @@ export default function HelpCentrePage() {
     guide.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Auto-switch tabs based on search results
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+
+    if (query.trim()) {
+      const renterMatches = renterGuides.filter(guide =>
+        guide.title.toLowerCase().includes(query.toLowerCase())
+      );
+      const ownerMatches = ownerGuides.filter(guide =>
+        guide.title.toLowerCase().includes(query.toLowerCase())
+      );
+
+      // If current tab has no results but the other tab does, switch tabs
+      if (activeTab === "renter" && renterMatches.length === 0 && ownerMatches.length > 0) {
+        setActiveTab("owner");
+      } else if (activeTab === "owner" && ownerMatches.length === 0 && renterMatches.length > 0) {
+        setActiveTab("renter");
+      }
+    }
+  };
+
+  // Total results across both tabs
+  const totalResults = filteredRenterGuides.length + filteredOwnerGuides.length;
+
   return (
     <div className="min-h-screen bg-white">
       <HeaderClient backHref="/" backText="Home" hideRoleSwitch={true} hideDashboard={true} />
@@ -64,7 +88,7 @@ export default function HelpCentrePage() {
               type="text"
               placeholder="Search how-tos and more"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               className="w-full px-6 py-4 pr-14 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-600 text-lg"
             />
             <button
@@ -113,7 +137,8 @@ export default function HelpCentrePage() {
               <h2 className="text-3xl font-semibold text-gray-900">Guides for getting started</h2>
               {searchQuery && (
                 <p className="text-sm text-gray-600 mt-2">
-                  {filteredRenterGuides.length} result{filteredRenterGuides.length !== 1 ? 's' : ''} for "{searchQuery}"
+                  {totalResults} result{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
+                  {filteredRenterGuides.length > 0 && ` (${filteredRenterGuides.length} in Desk Renter)`}
                 </p>
               )}
             </div>
@@ -148,7 +173,8 @@ export default function HelpCentrePage() {
               <h2 className="text-3xl font-semibold text-gray-900">Guides for getting started</h2>
               {searchQuery && (
                 <p className="text-sm text-gray-600 mt-2">
-                  {filteredOwnerGuides.length} result{filteredOwnerGuides.length !== 1 ? 's' : ''} for "{searchQuery}"
+                  {totalResults} result{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
+                  {filteredOwnerGuides.length > 0 && ` (${filteredOwnerGuides.length} in Desk Owner)`}
                 </p>
               )}
             </div>
