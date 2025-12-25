@@ -99,3 +99,21 @@ export function validateDeskId(deskId: any): { ok: boolean; sanitized?: string; 
 
   return { ok: true, sanitized: trimmed };
 }
+
+export function validateBookingId(bookingId: any): { ok: boolean; sanitized?: string; error?: string } {
+  if (!bookingId || typeof bookingId !== 'string') {
+    return { ok: false, error: 'Booking ID is required and must be a string' };
+  }
+
+  const trimmed = bookingId.trim();
+
+  if (trimmed.length < 10 || trimmed.length > 50) {
+    return { ok: false, error: 'Invalid booking ID format' };
+  }
+
+  if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+    return { ok: false, error: 'Invalid booking ID format' };
+  }
+
+  return { ok: true, sanitized: trimmed };
+}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { validateDeskId } from "@/lib/security-validation";
 
 export async function POST(request: Request) {
   try {
@@ -16,9 +17,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { deskId } = body;
 
-    if (!deskId) {
+    // Validate desk ID
+    const deskIdValidation = validateDeskId(deskId);
+    if (!deskIdValidation.ok) {
       return NextResponse.json(
-        { error: "Desk ID is required" },
+        { error: deskIdValidation.error },
         { status: 400 }
       );
     }

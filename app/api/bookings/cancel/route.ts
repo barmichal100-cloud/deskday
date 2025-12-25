@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUserId } from "@/lib/auth";
+import { validateBookingId } from "@/lib/security-validation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,9 +16,11 @@ export async function POST(request: NextRequest) {
 
     const { bookingId } = await request.json();
 
-    if (!bookingId) {
+    // Validate booking ID
+    const bookingIdValidation = validateBookingId(bookingId);
+    if (!bookingIdValidation.ok) {
       return NextResponse.json(
-        { error: "Booking ID is required" },
+        { error: bookingIdValidation.error },
         { status: 400 }
       );
     }
