@@ -103,8 +103,8 @@ export default function MessagesClient({
   };
 
   // Send message
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendMessage = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!selectedConversation || !messageInput.trim() || isSending) return;
 
     setIsSending(true);
@@ -124,6 +124,14 @@ export default function MessagesClient({
       console.error("Error sending message:", error);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // Handle textarea key press
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Prevent form submission on Enter
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
     }
   };
 
@@ -332,25 +340,36 @@ export default function MessagesClient({
             </div>
 
             {/* Message input */}
-            <form onSubmit={sendMessage} className="p-4 border-t border-gray-200">
-              <div className="flex gap-3">
-                <input
-                  type="text"
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex gap-3 items-end">
+                <textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder="Type a message..."
                   disabled={isSending}
-                  className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  rows={1}
+                  className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 disabled:bg-gray-100 disabled:cursor-not-allowed resize-none min-h-[44px] max-h-[120px] overflow-y-auto"
+                  style={{
+                    height: 'auto',
+                    minHeight: '44px'
+                  }}
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = 'auto';
+                    target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                  }}
                 />
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => sendMessage()}
                   disabled={isSending || !messageInput.trim()}
-                  className="rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                 >
                   {isSending ? "Sending..." : "Send"}
                 </button>
               </div>
-            </form>
+            </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center p-12">
