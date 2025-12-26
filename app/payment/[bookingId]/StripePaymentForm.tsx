@@ -2,15 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { loadStripe } from '@stripe/stripe-js';
 
 type Props = {
   bookingId: string;
   deskId: string;
 };
-
-// Initialize Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function StripePaymentForm({ bookingId, deskId }: Props) {
   const router = useRouter();
@@ -30,15 +26,6 @@ export default function StripePaymentForm({ bookingId, deskId }: Props) {
     setIsProcessing(true);
 
     try {
-      // Redirect to Stripe Checkout
-      const stripe = await stripePromise;
-
-      if (!stripe) {
-        setError('Stripe failed to load. Please refresh the page.');
-        setIsProcessing(false);
-        return;
-      }
-
       // The booking was already created by create-checkout-session
       // We need to create a new checkout session for this existing booking
       const response = await fetch('/api/create-stripe-checkout', {
@@ -59,13 +46,11 @@ export default function StripePaymentForm({ bookingId, deskId }: Props) {
         return;
       }
 
-      // Redirect to Stripe Checkout
-      const result = await stripe.redirectToCheckout({
-        sessionId: data.sessionId,
-      });
-
-      if (result.error) {
-        setError(result.error.message || 'Payment failed');
+      // Redirect to Stripe Checkout URL
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError('Failed to get checkout URL');
         setIsProcessing(false);
       }
     } catch (err) {
