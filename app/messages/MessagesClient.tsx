@@ -103,8 +103,7 @@ export default function MessagesClient({
   };
 
   // Send message
-  const sendMessage = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const sendMessage = async () => {
     if (!selectedConversation || !messageInput.trim() || isSending) return;
 
     setIsSending(true);
@@ -124,14 +123,6 @@ export default function MessagesClient({
       console.error("Error sending message:", error);
     } finally {
       setIsSending(false);
-    }
-  };
-
-  // Handle textarea key press
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Prevent form submission on Enter
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
     }
   };
 
@@ -345,7 +336,6 @@ export default function MessagesClient({
                 <textarea
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
                   placeholder="Type a message..."
                   disabled={isSending}
                   rows={1}
