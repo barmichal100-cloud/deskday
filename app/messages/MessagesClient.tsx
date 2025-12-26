@@ -15,6 +15,7 @@ type Message = {
   content: string;
   senderId: string;
   createdAt: string;
+  isRead: boolean;
   sender: {
     id: string;
     name: string | null;
@@ -28,6 +29,7 @@ type Conversation = {
   }>;
   messages: Message[];
   updatedAt: string;
+  unreadCount?: number;
 };
 
 export default function MessagesClient({
@@ -167,6 +169,17 @@ export default function MessagesClient({
     return conversation.messages[0]; // API returns latest message first
   };
 
+  const getUnreadCount = (conversation: Conversation) => {
+    // Use the unreadCount from API if available (from conversations list)
+    if (conversation.unreadCount !== undefined) {
+      return conversation.unreadCount;
+    }
+    // Otherwise calculate from messages (when viewing a specific conversation)
+    return conversation.messages.filter(
+      (msg) => msg.senderId !== currentUserId && !msg.isRead
+    ).length;
+  };
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -220,6 +233,7 @@ export default function MessagesClient({
               const user = getOtherUser(conversation);
               const lastMessage = getLastMessage(conversation);
               const isSelected = selectedConversation?.id === conversation.id;
+              const unreadCount = getUnreadCount(conversation);
 
               return (
                 <button
@@ -232,25 +246,34 @@ export default function MessagesClient({
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                      {(user?.name?.[0] || user?.email[0] || "?").toUpperCase()}
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                        {(user?.name?.[0] || user?.email[0] || "?").toUpperCase()}
+                      </div>
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-[10px] font-bold text-white">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
+                      <p className={`text-sm truncate ${unreadCount > 0 ? "font-bold text-gray-900" : "font-semibold text-gray-900"}`}>
                         {user?.name || user?.email || "Unknown"}
                       </p>
                       {lastMessage && (
-                        <p className="text-xs text-gray-600 truncate">
+                        <p className={`text-xs truncate ${unreadCount > 0 ? "font-semibold text-gray-900" : "text-gray-600"}`}>
                           {lastMessage.senderId === currentUserId ? "You: " : ""}
                           {lastMessage.content}
                         </p>
                       )}
                     </div>
-                    {lastMessage && (
-                      <span className="text-xs text-gray-500 flex-shrink-0">
-                        {formatTime(lastMessage.createdAt)}
-                      </span>
-                    )}
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      {lastMessage && (
+                        <span className="text-xs text-gray-500">
+                          {formatTime(lastMessage.createdAt)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );

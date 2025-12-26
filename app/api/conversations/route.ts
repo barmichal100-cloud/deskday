@@ -51,7 +51,24 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json({ conversations });
+    // Add unread count for each conversation
+    const conversationsWithUnreadCount = await Promise.all(
+      conversations.map(async (conversation) => {
+        const unreadCount = await prisma.message.count({
+          where: {
+            conversationId: conversation.id,
+            senderId: { not: userId },
+            isRead: false,
+          },
+        });
+        return {
+          ...conversation,
+          unreadCount,
+        };
+      })
+    );
+
+    return NextResponse.json({ conversations: conversationsWithUnreadCount });
   } catch (error) {
     console.error('Error fetching conversations:', error);
     return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 });
