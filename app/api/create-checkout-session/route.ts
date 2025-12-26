@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUserId } from '@/lib/auth';
+
+function getStripeClient() {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('STRIPE_SECRET_KEY is not configured');
+  }
+  return new Stripe(secretKey, {
+    apiVersion: '2025-11-17.clover',
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -98,14 +109,51 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Get current domain for redirect URLs
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const host = request.headers.get('host') || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
+    // Get base URL for redirect URLs
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-    // Return mock payment page URL instead of Stripe
+    const stripe = getStripeClient();
+
+    // Fetch desk with photos for Stripe checkout
+    const deskWithPhotos = await prisma.desk.findUnique({
+      where: { id: deskId },
+      include: {
+        photos: { take: 1, orderBy: { order: 'asc' } },
+      },
+    });
+
+    // Calculate total amount (booking amount + platform fee)
+    const totalAmountWithFee = totalAmount + platformFee;
+
+    // Create Stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: desk.currency.toLowerCase(),
+            product_data: {
+              name: desk.title_en,
+              description: `${desk.city}, ${desk.country} - ${numberOfDays} day${numberOfDays > 1 ? 's' : ''}`,
+              images: deskWithPhotos?.photos?.[0]?.url ? [deskWithPhotos.photos[0].url] : undefined,
+            },
+            unit_amount: totalAmountWithFee, // Amount in cents (totalAmount + platformFee)
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${baseUrl}/dashboard?tab=made&booking=${booking.id}&payment=success`,
+      cancel_url: `${baseUrl}/payment/${booking.id}?canceled=true`,
+      metadata: {
+        bookingId: booking.id,
+      },
+      expires_at: Math.floor(Date.now() / 1000) + (30 * 60), // 30 minutes
+    });
+
     return NextResponse.json({
-      url: `${baseUrl}/payment/${booking.id}`,
+      sessionId: session.id,
+      url: session.url,
       bookingId: booking.id,
     });
   } catch (error) {

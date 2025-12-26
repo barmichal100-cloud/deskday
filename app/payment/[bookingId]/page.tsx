@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import MockPaymentForm from "./MockPaymentForm";
+import StripePaymentForm from "./StripePaymentForm";
 import Header from "../../Header";
 
 type PaymentPageProps = {
@@ -107,8 +107,8 @@ export default async function MockPaymentPage({ params }: PaymentPageProps) {
             </div>
           </div>
 
-          {/* Mock payment form */}
-          <MockPaymentForm bookingId={bookingId} deskId={booking.deskId} />
+          {/* Stripe payment form */}
+          <StripePaymentForm bookingId={bookingId} deskId={booking.deskId} />
         </div>
 
         {/* Trust badges */}
