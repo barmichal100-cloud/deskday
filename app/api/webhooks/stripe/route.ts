@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 import { sendBookingConfirmationEmail, sendBookingNotificationToOwner } from '@/lib/email';
 
+// Stripe webhook handler for payment confirmations
+
 function getStripeClient() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
