@@ -157,10 +157,19 @@ export default function MessagesClient({
     }
   }, [selectedConversation?.id]);
 
-  // Scroll to bottom when messages change
+  // Only scroll to bottom when sending a new message (not when receiving)
+  const previousMessageCountRef = useRef<number>(0);
   useEffect(() => {
-    scrollToBottom();
-  }, [selectedConversation?.messages]);
+    const currentMessageCount = selectedConversation?.messages.length || 0;
+    // Only auto-scroll if we just sent a message (message count increased and we're the sender)
+    if (currentMessageCount > previousMessageCountRef.current) {
+      const lastMessage = selectedConversation?.messages[currentMessageCount - 1];
+      if (lastMessage?.senderId === currentUserId) {
+        scrollToBottom();
+      }
+    }
+    previousMessageCountRef.current = currentMessageCount;
+  }, [selectedConversation?.messages, currentUserId]);
 
   const getOtherUser = (conversation: Conversation) => {
     return conversation.participants.find((p) => p.user.id !== currentUserId)?.user;
