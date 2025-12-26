@@ -45,9 +45,9 @@ export async function createDesk(formData: FormData) {
     throw new Error("Description must be between 10 and 2000 characters.");
   }
 
-  // Address: 3–200 chars
-  if (address.length < 3 || address.length > 200) {
-    throw new Error("Address must be between 3 and 200 characters.");
+  // Address: 5–200 chars
+  if (address.length < 5 || address.length > 200) {
+    throw new Error("Address must be between 5 and 200 characters.");
   }
 
   // Price: positive, sane range
