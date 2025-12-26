@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
+import { sendBookingConfirmationEmail, sendBookingNotificationToOwner } from '@/lib/email';
 
 function getStripeClient() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -64,7 +65,12 @@ export async function POST(request: NextRequest) {
             stripePaymentIntentId: session.payment_intent as string,
           },
           include: {
-            desk: true,
+            desk: {
+              include: {
+                owner: true,
+              },
+            },
+            renter: true,
           },
         });
 
@@ -95,6 +101,45 @@ export async function POST(request: NextRequest) {
         }
 
         console.log(`Booking ${bookingId} confirmed and dates blocked`);
+
+        // Send confirmation email to renter
+        if (booking.renter?.email) {
+          const checkInDate = bookedDates[0];
+          const checkOutDate = bookedDates[bookedDates.length - 1];
+
+          await sendBookingConfirmationEmail({
+            to: booking.renter.email,
+            bookingId: booking.id,
+            deskTitle: booking.desk.title_en,
+            deskAddress: `${booking.desk.address}, ${booking.desk.city}, ${booking.desk.country}`,
+            checkInDate,
+            checkOutDate,
+            totalPrice: booking.totalPrice,
+            currency: booking.currency,
+            renterName: booking.renter.name || booking.renter.email.split('@')[0],
+          });
+        }
+
+        // Send notification email to desk owner
+        if (booking.desk.owner?.email) {
+          const checkInDate = bookedDates[0];
+          const checkOutDate = bookedDates[bookedDates.length - 1];
+
+          await sendBookingNotificationToOwner({
+            to: booking.desk.owner.email,
+            bookingId: booking.id,
+            deskTitle: booking.desk.title_en,
+            deskAddress: `${booking.desk.address}, ${booking.desk.city}, ${booking.desk.country}`,
+            checkInDate,
+            checkOutDate,
+            totalPrice: booking.totalPrice,
+            currency: booking.currency,
+            renterName: booking.renter?.name || booking.renter?.email.split('@')[0] || 'Unknown',
+            renterEmail: booking.renter?.email || 'Not provided',
+            ownerName: booking.desk.owner.name || booking.desk.owner.email.split('@')[0],
+          });
+        }
+
         break;
       }
 
