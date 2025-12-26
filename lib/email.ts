@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-// Email service for booking notifications
+// Email service for booking notifications via Resend
 const apiKey = process.env.RESEND_API_KEY;
 
 if (!apiKey) {
