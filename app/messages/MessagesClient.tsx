@@ -65,13 +65,15 @@ export default function MessagesClient({
   };
 
   // Fetch specific conversation
-  const fetchConversation = async (conversationId: string) => {
+  const fetchConversation = async (conversationId: string, shouldScroll: boolean = false) => {
     try {
       const res = await fetch(`/api/conversations/${conversationId}`);
       if (res.ok) {
         const data = await res.json();
         setSelectedConversation(data.conversation);
-        scrollToBottom();
+        if (shouldScroll) {
+          scrollToBottom();
+        }
       }
     } catch (error) {
       console.error("Error fetching conversation:", error);
@@ -113,7 +115,7 @@ export default function MessagesClient({
 
       if (res.ok) {
         setMessageInput("");
-        await fetchConversation(selectedConversation.id);
+        await fetchConversation(selectedConversation.id, true);
         await fetchConversations();
       }
     } catch (error) {
@@ -143,7 +145,7 @@ export default function MessagesClient({
   useEffect(() => {
     if (selectedConversation) {
       const interval = setInterval(() => {
-        fetchConversation(selectedConversation.id);
+        fetchConversation(selectedConversation.id, false);
       }, 3000); // Poll every 3 seconds
 
       setPollingInterval(interval);
@@ -156,20 +158,6 @@ export default function MessagesClient({
       setPollingInterval(null);
     }
   }, [selectedConversation?.id]);
-
-  // Only scroll to bottom when sending a new message (not when receiving)
-  const previousMessageCountRef = useRef<number>(0);
-  useEffect(() => {
-    const currentMessageCount = selectedConversation?.messages.length || 0;
-    // Only auto-scroll if we just sent a message (message count increased and we're the sender)
-    if (currentMessageCount > previousMessageCountRef.current) {
-      const lastMessage = selectedConversation?.messages[currentMessageCount - 1];
-      if (lastMessage?.senderId === currentUserId) {
-        scrollToBottom();
-      }
-    }
-    previousMessageCountRef.current = currentMessageCount;
-  }, [selectedConversation?.messages, currentUserId]);
 
   const getOtherUser = (conversation: Conversation) => {
     return conversation.participants.find((p) => p.user.id !== currentUserId)?.user;
