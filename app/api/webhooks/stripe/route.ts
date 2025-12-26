@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
             deskAddress: `${booking.desk.address}, ${booking.desk.city}, ${booking.desk.country}`,
             checkInDate,
             checkOutDate,
-            totalPrice: booking.totalPrice,
+            totalPrice: booking.totalAmount,
             currency: booking.currency,
             renterName: booking.renter.name || booking.renter.email.split('@')[0],
           });
@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
             deskAddress: `${booking.desk.address}, ${booking.desk.city}, ${booking.desk.country}`,
             checkInDate,
             checkOutDate,
-            totalPrice: booking.totalPrice,
+            totalPrice: booking.totalAmount,
             currency: booking.currency,
             renterName: booking.renter?.name || booking.renter?.email.split('@')[0] || 'Unknown',
             renterEmail: booking.renter?.email || 'Not provided',
