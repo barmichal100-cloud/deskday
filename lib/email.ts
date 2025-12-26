@@ -1,6 +1,12 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiKey = process.env.RESEND_API_KEY;
+
+if (!apiKey) {
+  console.warn('⚠️  RESEND_API_KEY is not configured - emails will not be sent');
+}
+
+const resend = apiKey ? new Resend(apiKey) : null;
 
 export async function sendBookingConfirmationEmail({
   to,
@@ -24,6 +30,15 @@ export async function sendBookingConfirmationEmail({
   renterName: string;
 }) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+
+  console.log('📧 Attempting to send booking confirmation email to:', to);
+  console.log('📧 From email:', fromEmail);
+  console.log('📧 Resend configured:', !!resend);
+
+  if (!resend) {
+    console.error('❌ Cannot send email - Resend not configured');
+    return { success: false, error: 'Resend API key not configured' };
+  }
 
   try {
     const { data, error } = await resend.emails.send({
@@ -95,14 +110,14 @@ export async function sendBookingConfirmationEmail({
     });
 
     if (error) {
-      console.error('Error sending booking confirmation email:', error);
+      console.error('❌ Error sending booking confirmation email:', error);
       return { success: false, error };
     }
 
-    console.log('Booking confirmation email sent:', data);
+    console.log('✅ Booking confirmation email sent successfully:', data);
     return { success: true, data };
   } catch (error) {
-    console.error('Failed to send booking confirmation email:', error);
+    console.error('❌ Failed to send booking confirmation email:', error);
     return { success: false, error };
   }
 }
@@ -134,8 +149,17 @@ export async function sendBookingNotificationToOwner({
 }) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
+  console.log('📧 Attempting to send booking notification to owner:', to);
+  console.log('📧 From email:', fromEmail);
+  console.log('📧 Resend configured:', !!resend);
+
+  if (!resend) {
+    console.error('❌ Cannot send email - Resend not configured');
+    return { success: false, error: 'Resend API key not configured' };
+  }
+
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error} = await resend.emails.send({
       from: fromEmail,
       to,
       subject: `New Booking Received - ${deskTitle}`,
@@ -212,14 +236,14 @@ export async function sendBookingNotificationToOwner({
     });
 
     if (error) {
-      console.error('Error sending booking notification to owner:', error);
+      console.error('❌ Error sending booking notification to owner:', error);
       return { success: false, error };
     }
 
-    console.log('Booking notification email sent to owner:', data);
+    console.log('✅ Booking notification email sent to owner successfully:', data);
     return { success: true, data };
   } catch (error) {
-    console.error('Failed to send booking notification to owner:', error);
+    console.error('❌ Failed to send booking notification to owner:', error);
     return { success: false, error };
   }
 }
