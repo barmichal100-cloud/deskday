@@ -48,6 +48,8 @@ export default async function PaymentsPage() {
           hasStripeAccount={hasStripeAccount}
           hasPaymentMethod={hasPaymentMethod}
           payouts={payouts}
+          stripeOnboardingComplete={user.stripeOnboardingComplete}
+          stripeChargesEnabled={user.stripeChargesEnabled}
         />
       </section>
     </main>

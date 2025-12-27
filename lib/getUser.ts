@@ -10,6 +10,10 @@ export type User = {
   preferredCurrency: "ILS" | "USD" | "EUR";
   stripeCustomerId: string | null;
   stripeConnectAccountId: string | null;
+  stripeOnboardingComplete: boolean;
+  stripeDetailsSubmitted: boolean;
+  stripeChargesEnabled: boolean;
+  stripePayoutsEnabled: boolean;
 };
 
 export async function getUser(): Promise<User | null> {
@@ -31,6 +35,10 @@ export async function getUser(): Promise<User | null> {
         preferredCurrency: true,
         stripeCustomerId: true,
         stripeConnectAccountId: true,
+        stripeOnboardingComplete: true,
+        stripeDetailsSubmitted: true,
+        stripeChargesEnabled: true,
+        stripePayoutsEnabled: true,
       },
     });
 

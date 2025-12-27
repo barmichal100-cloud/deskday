@@ -9,6 +9,8 @@ type Props = {
   hasStripeAccount: boolean;
   hasPaymentMethod: boolean;
   payouts: any[];
+  stripeOnboardingComplete: boolean;
+  stripeChargesEnabled: boolean;
 };
 
 export default function PaymentsTabs({
@@ -16,6 +18,8 @@ export default function PaymentsTabs({
   hasStripeAccount,
   hasPaymentMethod,
   payouts,
+  stripeOnboardingComplete,
+  stripeChargesEnabled,
 }: Props) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as "payments" | "payouts" | null;
@@ -25,12 +29,60 @@ export default function PaymentsTabs({
   );
   const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
   const [showManagePaymentsModal, setShowManagePaymentsModal] = useState(false);
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
 
   useEffect(() => {
     if (tabParam) {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
+
+  const handleConnectStripe = async () => {
+    setIsConnectingStripe(true);
+    setConnectError(null);
+
+    try {
+      const response = await fetch('/api/stripe/connect/onboard', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setConnectError(data.error || 'Failed to start Stripe Connect onboarding');
+        setIsConnectingStripe(false);
+        return;
+      }
+
+      // Redirect to Stripe onboarding
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setConnectError('Failed to get onboarding URL');
+        setIsConnectingStripe(false);
+      }
+    } catch (error) {
+      setConnectError('An unexpected error occurred');
+      setIsConnectingStripe(false);
+    }
+  };
+
+  const handleOpenStripeDashboard = async () => {
+    try {
+      const response = await fetch('/api/stripe/connect/dashboard', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Failed to open Stripe dashboard:', error);
+    }
+  };
 
   const tabs = [
     { id: "payments", label: "Payments" },
@@ -140,20 +192,45 @@ export default function PaymentsTabs({
 
             {hasStripeAccount ? (
               <div className="space-y-4">
+                {connectError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {connectError}
+                  </div>
+                )}
                 <div className="flex items-center justify-between p-4 border border-gray-300 rounded-xl bg-gray-50">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      stripeOnboardingComplete && stripeChargesEnabled
+                        ? 'bg-gray-900'
+                        : 'bg-yellow-500'
+                    }`}>
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        {stripeOnboardingComplete && stripeChargesEnabled ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        )}
                       </svg>
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">Bank account connected</p>
-                      <p className="text-sm text-gray-600">Payouts enabled</p>
+                      <p className="font-medium text-gray-900">
+                        {stripeOnboardingComplete && stripeChargesEnabled
+                          ? 'Bank account connected'
+                          : 'Onboarding incomplete'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {stripeOnboardingComplete && stripeChargesEnabled
+                          ? 'Payouts enabled'
+                          : 'Complete onboarding to receive payments'}
+                      </p>
                     </div>
                   </div>
-                  <button className="text-sm font-semibold underline text-gray-900 hover:text-gray-700">
-                    Edit
+                  <button
+                    onClick={stripeOnboardingComplete ? handleOpenStripeDashboard : handleConnectStripe}
+                    className="text-sm font-semibold underline text-gray-900 hover:text-gray-700"
+                    disabled={isConnectingStripe}
+                  >
+                    {stripeOnboardingComplete ? 'Manage' : 'Complete setup'}
                   </button>
                 </div>
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
@@ -182,8 +259,17 @@ export default function PaymentsTabs({
               </div>
             ) : (
               <div className="space-y-4">
-                <button className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition">
-                  Set up payouts
+                {connectError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {connectError}
+                  </div>
+                )}
+                <button
+                  onClick={handleConnectStripe}
+                  disabled={isConnectingStripe}
+                  className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isConnectingStripe ? 'Connecting...' : 'Set up payouts'}
                 </button>
                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
                   <h3 className="font-medium text-gray-900 mb-2">Need help?</h3>
