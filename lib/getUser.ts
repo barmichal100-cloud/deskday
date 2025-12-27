@@ -9,7 +9,7 @@ export type User = {
   preferredLocale: "EN" | "HE";
   preferredCurrency: "ILS" | "USD" | "EUR";
   stripeCustomerId: string | null;
-  stripeAccountId: string | null;
+  stripeConnectAccountId: string | null;
 };
 
 export async function getUser(): Promise<User | null> {
@@ -30,7 +30,7 @@ export async function getUser(): Promise<User | null> {
         preferredLocale: true,
         preferredCurrency: true,
         stripeCustomerId: true,
-        stripeAccountId: true,
+        stripeConnectAccountId: true,
       },
     });
 
