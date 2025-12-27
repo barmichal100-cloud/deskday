@@ -38,8 +38,17 @@ enum BlockReason {
 
 enum PayoutStatus {
   PENDING
+  SCHEDULED
   PAID
   FAILED
+  DISPUTED
+}
+
+enum DisputeStatus {
+  NONE
+  FILED
+  UNDER_REVIEW
+  RESOLVED
 }
 
 model User {
@@ -53,7 +62,13 @@ model User {
   preferredLocale    Locale   @default(EN)
   preferredCurrency  Currency @default(ILS)
   stripeCustomerId   String?
-  stripeAccountId    String?
+
+  // Stripe Connect fields for owners
+  stripeConnectAccountId    String?  @unique
+  stripeOnboardingComplete  Boolean  @default(false)
+  stripeDetailsSubmitted    Boolean  @default(false)
+  stripeChargesEnabled      Boolean  @default(false)
+  stripePayoutsEnabled      Boolean  @default(false)
 
   desks                    Desk[]
   bookings                 Booking[] @relation("RenterBookings")
@@ -153,6 +168,14 @@ model Booking {
 
   stripePaymentIntentId   String?
   stripeCheckoutSessionId String?
+
+  // Payout and dispute tracking
+  payoutStatus          PayoutStatus   @default(PENDING)
+  payoutScheduledDate   DateTime?
+  payoutCompletedDate   DateTime?
+  disputeStatus         DisputeStatus  @default(NONE)
+  disputeReason         String?
+  disputeFiledAt        DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

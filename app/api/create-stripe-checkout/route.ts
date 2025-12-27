@@ -34,13 +34,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch booking with desk details
+    // Fetch booking with desk details and owner's Stripe Connect account
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
         desk: {
           include: {
             photos: { take: 1, orderBy: { order: 'asc' } },
+            owner: {
+              select: {
+                stripeConnectAccountId: true,
+                stripeOnboardingComplete: true,
+                stripeChargesEnabled: true,
+              },
+            },
           },
         },
       },
@@ -69,6 +76,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if owner has completed Stripe Connect onboarding
+    if (!booking.desk.owner.stripeConnectAccountId || !booking.desk.owner.stripeOnboardingComplete) {
+      return NextResponse.json(
+        { error: 'This desk owner has not completed payment setup. Please contact support.' },
+        { status: 400 }
+      );
+    }
+
+    if (!booking.desk.owner.stripeChargesEnabled) {
+      return NextResponse.json(
+        { error: 'This desk owner cannot accept payments yet. Please try again later.' },
+        { status: 400 }
+      );
+    }
+
     const stripe = getStripeClient();
 
     // Calculate total amount (booking amount + platform fee)
@@ -81,7 +103,7 @@ export async function POST(request: NextRequest) {
     // Get base URL for redirect URLs
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with Direct Charges
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -105,6 +127,13 @@ export async function POST(request: NextRequest) {
         bookingId: booking.id,
       },
       expires_at: Math.floor(Date.now() / 1000) + (30 * 60), // 30 minutes
+      // Direct Charges: Payment goes to owner's Connect account
+      payment_intent_data: {
+        application_fee_amount: booking.platformFee, // Platform receives 15% commission
+        transfer_data: {
+          destination: booking.desk.owner.stripeConnectAccountId!, // Owner's Connect account
+        },
+      },
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
