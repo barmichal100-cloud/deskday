@@ -31,7 +31,7 @@ export default async function PaymentsPage() {
       })
     : [];
 
-  const hasStripeAccount = !!user.stripeAccountId;
+  const hasStripeAccount = !!user.stripeConnectAccountId;
   const hasPaymentMethod = !!user.stripeCustomerId;
 
   return (
